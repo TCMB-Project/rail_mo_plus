@@ -1,0 +1,22 @@
+{
+  "name": "rail_mo_plus",
+  "version": "1.0.0",
+  "description": "rail_movement for high speed driving",
+  "main": "rail_mo_plus.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TCMB-Project/rail_mo_plus.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TCMB-Project/rail_mo_plus/issues"
+  },
+  "homepage": "https://github.com/TCMB-Project/rail_mo_plus#readme",
+  "dependencies": {
+    "@minecraft/server": "^1.12.0"
+  }
+}
