@@ -1,0 +1,12 @@
+{
+  "files": ["src/rail_mo_plus.ts"],
+  "compilerOptions": {
+    "declaration": true,
+    "module": "ES2020",
+    "target": "ES2021",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./"
+  }
+}
