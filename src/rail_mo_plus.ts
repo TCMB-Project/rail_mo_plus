@@ -1,110 +1,6 @@
-import { Entity, system, Vector2, Vector3, world } from "@minecraft/server"
+import { Entity, Block, system, Vector2, Vector3, world } from "@minecraft/server"
+import { rail_direction } from "./rail_direction"
 
-const rail_direction:{
-  east: Vector3
-  west: Vector3
-  north: Vector3
-  south: Vector3
-  rotate_east?: Vector2
-  rotate_west?: Vector2
-  rotate_north?: Vector2
-  rotate_south?: Vector2
-}[] = [
-  //rail_direction=0 north_south
-  {
-    north: {x: 0, y: 0, z: -1},
-    south: {x: 0, y: 0, z: 1},
-    east: {x: 0, y: 0, z: 1},
-    west: {x: 0, y: 0, z: 1},
-    rotate_north: {x: 0, y: 0},
-    rotate_south: {x: 0, y: 0},
-    rotate_east: {x: 0, y: 90},
-    rotate_west: {x: 0, y:-90}
-  },
-  //rail_direction=1 east_west
-  {
-    north: {x: 1, y: 0, z: 0},
-    south: {x: 1, y: 0, z: 0},
-    east: {x: 1, y: 0, z: 1},
-    west: {x: -1, y: 0, z: 1},
-    rotate_north: {x: 0, y: -90},
-    rotate_south: {x: 0, y: 90},
-    rotate_east: {x: 0, y: 0},
-    rotate_west: {x: 0, y: 0}
-  },
-  //rail_direction=2 ascending_east
-  {
-    north: {x: -1, y: 0, z: 0},
-    south: {x: -1, y: 0, z: 0},
-    east: {x: 1, y: 1, z: 0},
-    west: {x: -1, y: -1, z: 0},
-    rotate_north: {x: 0, y: -90},
-    rotate_south: {x: 0, y: 90},
-    rotate_east: {x: 0, y: 0},
-    rotate_west: {x: 0, y: 0}
-  },
-  //rail_direction=3 ascending_west
-  {
-    north: {x: -1, y: 0, z: 0},
-    south: {x: -1, y: 0, z: 0},
-    east: {x: -1, y: -1, z: 0},
-    west: {x: 1, y: 1, z: 0},
-    rotate_north: {x: 0, y: -90},
-    rotate_south: {x: 0, y: 90},
-    rotate_east: {x: 0, y: -90},
-    rotate_west: {x: 0, y: 90}
-  },
-  //rail_direction=4 ascending_north
-  {
-    north: {x: 0, y: 1, z: -1},
-    south: {x: 0, y: -1, z: 1},
-    east: {x: 0, y: 0, z: 1},
-    west: {x: 0, y: 0, z: 1},
-    rotate_north: {x: 0, y: 0},
-    rotate_south: {x: 0, y: 0},
-    rotate_east: {x: 0, y: 90},
-    rotate_west: {x: 0, y: -90}
-  },
-  //rail_direction=5 ascending_south
-  {
-    north: {x: 0, y: -1, z: -1},
-    south: {x: 0, y: 1, z: 1},
-    east: {x: 0, y: 0, z: -1},
-    west: {x: 0, y: 0, z: -1},
-    rotate_north: {x: 0, y: 0},
-    rotate_south: {x: 0, y: 0},
-    rotate_east: {x: 0, y: -90},
-    rotate_west: {x: 0, y: 90}
-  },
-  //rail_direction=6 south_east
-  {
-    north: {x: 0.5, y: 0, z: -0.5},
-    south: {x: 0, y: 0, z: 1},
-    east: {x: 1, y: 0, z: 0},
-    west: {x: -0.5, y: 0, z: 0.5}
-  },
-  //rail_direction=7 south_west
-  {
-    north: {x: -0.5, y: 0, z: 0.5},
-    south: {x: 0, y: 0, z: 1},
-    east: {x: 0.5, y: 0, z: 0.5},
-    west: {x: -1, y: 0, z: 0}
-  },
-  //rail_direction=8 north_west
-  {
-    north: {x: 0, y: 0, z: -1},
-    south: {x: -0.5, y: 0, z: 0.5},
-    east: {x: 0.5, y: 0, z: -0.5},
-    west: {x: -1, y: 0, z: 0}
-  },
-  //rail_direction=9 north_east
-  {
-    north: {x: 0, y: 0, z: -1},
-    south: {x: 0.5, y: 0, z: 0.5},
-    east: {x: 1, y: 0, z: 0},
-    west: {x: -0.5, y: 0, z: -0.5}
-  }
-]
 /**
  * controlling entity
  */
@@ -114,23 +10,30 @@ export class RailMoPlusEntity{
   constructor(entity: Entity/*, rotate: boolean*/){
     this.entity = entity;
     //this.rotate = rotate;
-    this.speed = 0;
-    if(entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')){
-      let speedDP = entity.getDynamicProperty('rail_mo_plus:speed')
-      this.speed = typeof speedDP=='number'?speedDP:0;
+    if(!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')){
+      entity.setDynamicProperty('rail_mo_plus:speed', 0);
+      //virtual rotation
+      entity.setDynamicProperty('rail_mo_plus:vrotation_x', entity.getRotation().x);
+      entity.setDynamicProperty('rail_mo_plus:vrotation_y', entity.getRotation().y);
     }
     entities.set(entity.id, this);
   }
   entity: Entity;
-  private speed: number;
   setSpeed(speed: number): void{
-    this.speed = speed;
-    this.entity.setDynamicProperty('rail_mo_plus:speed', this.speed);
+    this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
     entities.set(this.entity.id, this);
   }
   getSpeed(): number{
     let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
     return typeof speedDP=='number'?speedDP:0;
+  }
+  getVirtualRotation(): Vector2{
+    let vrotation_x_dp = this.entity.getDynamicProperty('rail_mo_plus:vrotation_x');
+    let vrotation_y_dp = this.entity.getDynamicProperty('rail_mo_plus:vrotation_y');
+    let vrotation_x: number = typeof vrotation_x_dp=="number"?vrotation_x_dp:0;
+    let vrotation_y: number = typeof vrotation_y_dp=="number"?vrotation_y_dp:0;
+
+    return {x: vrotation_x, y: vrotation_y};
   }
   isValid(): boolean{
     return entities.has(this.entity.id) && this.entity.isValid();
@@ -142,7 +45,11 @@ export class RailMoPlusEntity{
 
 function gameloop(){
   for(const [_, car] of entities){
+    const entity = car.entity;
     const location: Vector3 = car.entity.location;
+    const current_block: Block | undefined = car.entity.dimension.getBlock({x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z)});
+
+
   }
   system.run(gameloop);
 }

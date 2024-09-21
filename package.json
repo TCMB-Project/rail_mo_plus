@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/TCMB-Project/rail_mo_plus#readme",
   "dependencies": {
-    "@minecraft/server": "^1.12.0"
+    "@minecraft/server": "^1.14.0"
   }
 }
