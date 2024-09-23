@@ -1,6 +1,10 @@
 import { Entity, Block, system, Vector2, Vector3, world } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
 
+const north_south = [1, 4, 5];
+const east_west = [1, 2, 3];
+const ascending = [2, 3, 4, 5];
+
 /**
  * controlling entity
  */
@@ -48,8 +52,37 @@ function gameloop(){
     const entity = car.entity;
     const location: Vector3 = car.entity.location;
     const current_block: Block | undefined = car.entity.dimension.getBlock({x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z)});
+    let state = current_block.permutation.getState('rail_direction');
+    state = typeof state == 'number'?state:0;
+    let after_location: Vector3 = {x: 0, y: 0, z: 0};
 
+    //Position correction
+    if(north_south.includes(state)){
+      after_location.x = Math.floor(location.x) + 0.5;
+    }
+    if(east_west.includes(state)){
+      after_location.y = Math.floor(location.z) + 0.5;
+    }
+    if(ascending.includes(state)){
+      switch(state){
+        case 2:{
 
+        }
+        break;
+        case 3:{
+
+        }
+        break;
+        case 4:{
+
+        }
+        break;
+        case 5:{
+
+        }
+        break;
+      }
+    }
   }
   system.run(gameloop);
 }
