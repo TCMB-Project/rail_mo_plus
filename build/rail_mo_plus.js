@@ -2,7 +2,7 @@ import { system, world } from "@minecraft/server";
 import { rail_direction } from "./rail_direction";
 import { toBlockLocation } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
-const north_south = [1, 4, 5];
+const north_south = [0, 4, 5];
 const east_west = [1, 2, 3];
 const ascending = [2, 3, 4, 5];
 const curve = [6, 7, 8, 9];
