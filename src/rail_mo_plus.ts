@@ -1,5 +1,6 @@
 import { Entity, Block, system, Vector2, Vector3, world } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
+import { toBlockLocation } from "./functions";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [1, 4, 5];
@@ -25,14 +26,10 @@ const direction_reverse = {
   "east": "west"
 }
 
-/**
- * controlling entity
- */
-let entities: Map<string, RailMoPlusEntity> = new Map()
-
 export class RailMoPlusEntity{
   constructor(entity: Entity/*, rotate: boolean*/){
     this.entity = entity;
+    this.isDestroyed = false;
     //this.rotate = rotate;
     if(!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')){
       entity.setDynamicProperty('rail_mo_plus:speed', 0);
@@ -51,12 +48,11 @@ export class RailMoPlusEntity{
         this.setEnterDirection(PRIVARE_SYMBOL, "west");
       }
     }
-    entities.set(entity.id, this);
+    system.run(()=>this.gameloop(this));
   }
   entity: Entity;
   setSpeed(speed: number): void{
     this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
-    entities.set(this.entity.id, this);
   }
   getSpeed(): number{
     let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
@@ -91,110 +87,38 @@ export class RailMoPlusEntity{
     this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
   }
   isValid(): boolean{
-    return entities.has(this.entity.id) && this.entity.isValid();
+    return this.entity.isValid();
   }
   destroy(): void{
-    entities.delete(this.entity.id);
+    this.isDestroyed = true;
+    this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
+    this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', undefined);
+    this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
+    this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
+  }
+  private isDestroyed: boolean
+
+  private gameloop(car: RailMoPlusEntity): void{
+    if(this.isDestroyed) return;
+    do{
+      const entity = this.entity;
+      const location: Vector3 = entity.location;
+      const blockLocation = toBlockLocation(location);
+      const rotation: Vector2 = this.getVirtualRotation();
+      const current_block: Block | undefined = entity.dimension.getBlock(blockLocation);
+      if(typeof current_block == "undefined") break;
+      let state = current_block.permutation.getState('rail_direction');
+      if(typeof state != 'number') break;
+
+      const enter_edge: Vector3 = edge[direction_reverse[this.getEnterDirection()]];
+      const start: Vector3 = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
+      const end_edge: Vector3 = rail_direction[state][this.getEnterDirection()];
+      const end: Vector3 = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
+  
+      let after_location: Vector3;
+      world.sendMessage("state: "+state+"\n"+"block_location: "+blockLocation);
+    }while(false);
+
+    system.run(()=>this.gameloop(this));
   }
 }
-
-/**
- * Function to return a normalized value
- * @param {Vector3} start - Starting coordinates
- * @param {Vector3} end - Ending coordinates
- * @param {Vector3} location - Current location
- * @returns {number} - Normalized value
- */
-function getNormalizedVector(start: Vector3, end: Vector3, location: Vector3): number {
-    // Calculate the difference vector
-    const vectorDiff = {
-        x: end.x - start.x,
-        y: end.y - start.y,
-        z: end.z - start.z
-    };
-
-    // Calculate the difference from the start to the current location
-    const locationDiff = {
-        x: location.x - start.x,
-        y: location.y - start.y,
-        z: location.z - start.z
-    };
-
-    // Calculate the length of the vectors
-    const vectorLength = Math.sqrt(vectorDiff.x ** 2 + vectorDiff.y ** 2 + vectorDiff.z ** 2);
-    const locationLength = Math.sqrt(locationDiff.x ** 2 + locationDiff.y ** 2 + locationDiff.z ** 2);
-
-    // Calculate the normalized value
-    const normalizedValue = locationLength / vectorLength;
-
-    return normalizedValue;
-}
-
-/**
- * Function to correct the position to the nearest point on the line segment (start, end)
- * @param start - The starting point of the line
- * @param end - The ending point of the line
- * @param location - The current position
- * @returns The corrected position (the closest point on the line segment)
- */
-function correctToRail(start: Vector3, end: Vector3, location: Vector3): Vector3 {
-  // Vector from start to end
-  const line = {
-      x: end.x - start.x,
-      y: end.y - start.y,
-      z: end.z - start.z
-  };
-
-  // Vector from start to current location
-  const locationVector = {
-      x: location.x - start.x,
-      y: location.y - start.y,
-      z: location.z - start.z
-  };
-
-  // The squared length (norm) of the line vector
-  const lineLengthSquared = line.x * line.x + line.y * line.y + line.z * line.z;
-
-  if (lineLengthSquared === 0) {
-      // If the start and end points are the same, return the start point
-      return start;
-  }
-
-  // Calculate the scalar value to project locationVector onto line
-  const t = (locationVector.x * line.x + locationVector.y * line.y + locationVector.z * line.z) / lineLengthSquared;
-
-  // Clamp the value of t to ensure it is within the range 0 <= t <= 1, keeping the point within the line segment
-  const clampedT = Math.max(0, Math.min(1, t));
-
-  // Calculate the projected (corrected) position
-  const correctedPosition = {
-      x: start.x + clampedT * line.x,
-      y: start.y + clampedT * line.y,
-      z: start.z + clampedT * line.z
-  };
-
-  return correctedPosition;
-}
-
-
-function toBlockLocation(location: Vector3){
-  return {x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z)};
-}
-
-function gameloop(){
-  for(const [_, car] of entities){
-    const entity = car.entity;
-    const location: Vector3 = entity.location;
-    const blockLocation = toBlockLocation(location);
-    const rotation: Vector2 = car.getVirtualRotation();
-    const current_block: Block | undefined = entity.dimension.getBlock(blockLocation);
-    if(typeof current_block == "undefined") continue;
-    let state = current_block.permutation.getState('rail_direction');
-    if(typeof state != 'number') continue;
-
-    let after_location: Vector3;
-
-  }
-  system.run(gameloop);
-}
-system.run(gameloop);
