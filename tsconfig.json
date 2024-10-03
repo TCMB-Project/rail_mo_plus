@@ -5,6 +5,7 @@
     "target": "ES2021",
     "moduleResolution": "Node",
     "sourceMap": true,
+    "strict": false,
     "allowSyntheticDefaultImports": true,
     "outDir": "./build",
     "rootDir": "./src"

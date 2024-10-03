@@ -48,7 +48,7 @@ export class RailMoPlusEntity {
                 this.setEnterDirection(PRIVARE_SYMBOL, "west");
             }
         }
-        system.run(() => this.gameloop(this));
+        system.run(() => this.gameloop());
     }
     setSpeed(speed) {
         this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
@@ -88,7 +88,7 @@ export class RailMoPlusEntity {
         this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
     }
     isValid() {
-        return this.entity.isValid();
+        return this.entity.isValid() && !this.isDestroyed;
     }
     destroy() {
         this.isDestroyed = true;
@@ -97,8 +97,8 @@ export class RailMoPlusEntity {
         this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
         this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
     }
-    gameloop(car) {
-        if (this.isDestroyed)
+    gameloop() {
+        if (this.isValid())
             return;
         do {
             const entity = this.entity;
@@ -118,7 +118,7 @@ export class RailMoPlusEntity {
             let after_location;
             world.sendMessage("state: " + state + "\n" + "block_location: " + blockLocation);
         } while (false);
-        system.run(() => this.gameloop(this));
+        system.run(() => this.gameloop());
     }
 }
 //# sourceMappingURL=rail_mo_plus.js.map

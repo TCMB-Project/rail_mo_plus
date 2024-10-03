@@ -1,30 +1,12 @@
 import { Entity, Block, system, Vector2, Vector3, world } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
-import { toBlockLocation } from "./functions";
+import { correctToRail, getNormalizedVector, toBlockLocation, direction, edge, direction_reverse } from "./functions";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
 const east_west = [1, 2, 3];
 const ascending = [2, 3, 4, 5];
 const curve = [6, 7, 8, 9];
-const direction = {
-  "-180": "north",
-  "0": "south",
-  "90": "west",
-  "-90": "east"
-}
-const edge = {
-  "north": <Vector3>{x: 0.5, y: 0, z: 0},
-  "south": <Vector3>{x: 0.5, y: 0, z: 1},
-  "west": <Vector3>{x: -1, y: 0, z: 0.5},
-  "east": <Vector3>{x: 0, y: 0, z: 0.5}
-}
-const direction_reverse = {
-  "north": "south",
-  "south": "north",
-  "west": "east",
-  "east": "west"
-}
 
 export class RailMoPlusEntity{
   constructor(entity: Entity/*, rotate: boolean*/){
@@ -47,10 +29,15 @@ export class RailMoPlusEntity{
         this.setVirtualRotation(PRIVARE_SYMBOL, rail_direction[state].rotate_east);
         this.setEnterDirection(PRIVARE_SYMBOL, "west");
       }
+      //TODO 曲線レールの上にスポーンしても対応できるようにする
     }
-    system.run(()=>this.gameloop(this));
+    system.run(()=>this.gameloop());
   }
   entity: Entity;
+  /**
+   * Set the speed.
+   * @param speed Speed (km/h) to be set
+   */
   setSpeed(speed: number): void{
     this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
   }
@@ -87,7 +74,7 @@ export class RailMoPlusEntity{
     this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
   }
   isValid(): boolean{
-    return this.entity.isValid();
+    return this.entity.isValid() && !this.isDestroyed;
   }
   destroy(): void{
     this.isDestroyed = true;
@@ -98,27 +85,38 @@ export class RailMoPlusEntity{
   }
   private isDestroyed: boolean
 
-  private gameloop(car: RailMoPlusEntity): void{
-    if(this.isDestroyed) return;
+  private gameloop(): void{
+    if(!this.isValid()) return;
     do{
       const entity = this.entity;
-      const location: Vector3 = entity.location;
+      let location: Vector3 = entity.location;
       const blockLocation = toBlockLocation(location);
-      const rotation: Vector2 = this.getVirtualRotation();
-      const current_block: Block | undefined = entity.dimension.getBlock(blockLocation);
+      //const rotation: Vector2 = this.getVirtualRotation();
+      let current_block: Block | undefined = entity.dimension.getBlock(blockLocation);
       if(typeof current_block == "undefined") break;
       let state = current_block.permutation.getState('rail_direction');
       if(typeof state != 'number') break;
 
-      const enter_edge: Vector3 = edge[direction_reverse[this.getEnterDirection()]];
-      const start: Vector3 = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
-      const end_edge: Vector3 = rail_direction[state][this.getEnterDirection()];
-      const end: Vector3 = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
-  
+      let enter_edge: Vector3 = edge[direction_reverse[this.getEnterDirection()]];
+      let start: Vector3 = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
+      let end_edge: Vector3 = rail_direction[state][this.getEnterDirection()];
+      let end: Vector3 = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
+
+      location = correctToRail(start, end, location);
+      const norm = getNormalizedVector(start, end, location);
+
+      /*  
+        km/h to m/tick
+        https://github.com/HakoMC/minecart_speed_list/blob/main/minecart_speed.txt
+      */
+      const speed = this.getSpeed() / 72;
+      if(speed == 0) break;
+
       let after_location: Vector3;
-      world.sendMessage("state: "+state+"\n"+"block_location: "+blockLocation);
+
+      
     }while(false);
 
-    system.run(()=>this.gameloop(this));
+    system.run(()=>this.gameloop());
   }
 }
