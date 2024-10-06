@@ -13,6 +13,9 @@ export class RailMoPlusEntity {
         //this.rotate = rotate;
         if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')) {
             entity.setDynamicProperty('rail_mo_plus:speed', 0);
+        }
+        this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
+        if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_x') || !entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_y')) {
             //virtual rotation
             const location = this.entity.location;
             const current_block = this.entity.dimension.getBlock({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });
@@ -39,6 +42,10 @@ export class RailMoPlusEntity {
      */
     setSpeed(speed) {
         this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
+        let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
+        if (reverse != speed < 0)
+            this.setEnterDirection(PRIVARE_SYMBOL, direction_reverse[this.getEnterDirection()]);
+        this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
     }
     getSpeed() {
         let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
