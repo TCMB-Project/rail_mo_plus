@@ -4,8 +4,8 @@ export declare const rail_direction: {
     west: Vector3;
     north: Vector3;
     south: Vector3;
-    rotate_east?: Vector2;
-    rotate_west?: Vector2;
-    rotate_north?: Vector2;
-    rotate_south?: Vector2;
+    rotate_east: Vector2;
+    rotate_west: Vector2;
+    rotate_north: Vector2;
+    rotate_south: Vector2;
 }[];

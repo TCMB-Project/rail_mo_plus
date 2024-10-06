@@ -1,6 +1,6 @@
 import { Entity, Block, system, Vector2, Vector3, world } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
-import { correctToRail, getNormalizedVector, toBlockLocation, direction, edge, direction_reverse } from "./functions";
+import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock } from "./functions";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
@@ -91,15 +91,16 @@ export class RailMoPlusEntity{
       const entity = this.entity;
       let location: Vector3 = entity.location;
       const blockLocation = toBlockLocation(location);
-      //const rotation: Vector2 = this.getVirtualRotation();
+      let rotation: Vector2 = this.getVirtualRotation();
       let current_block: Block | undefined = entity.dimension.getBlock(blockLocation);
       if(typeof current_block == "undefined") break;
       let state = current_block.permutation.getState('rail_direction');
       if(typeof state != 'number') break;
+      let enter_direction = this.getEnterDirection();
 
-      let enter_edge: Vector3 = edge[direction_reverse[this.getEnterDirection()]];
+      let enter_edge: Vector3 = edge[direction_reverse[enter_direction]];
       let start: Vector3 = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
-      let end_edge: Vector3 = rail_direction[state][this.getEnterDirection()];
+      let end_edge: Vector3 = rail_direction[state][enter_direction];
       let end: Vector3 = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
 
       location = correctToRail(start, end, location);
@@ -114,7 +115,35 @@ export class RailMoPlusEntity{
 
       let after_location: Vector3;
 
-      
+      let target = Math.abs(speed) + norm;
+      while(true){
+        if(target >= 1){
+          rotation = { x: 0, y: rotation.y + rail_direction[state]['rotate_'+enter_direction].y }
+          location = end;
+          let next_block = nextBlock(entity.dimension, location, rotation);
+
+          current_block = next_block.block;
+          if(typeof current_block == "undefined") break;
+          state = current_block.permutation.getState('rail_direction');
+          if(typeof state != 'number') break;
+
+          enter_edge = edge[direction_reverse[enter_direction]];
+          start = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
+          end_edge = rail_direction[state][enter_direction];
+          end = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
+
+          enter_direction = (speed > 0)?direction[rotation.y.toString()]:direction_reverse[direction[rotation.y.toString()]];
+
+          target--;
+        }else{
+          location = getLerpVector(start, end, target);
+          rotation = getLerpVector({x: 0, y: rotation.y, z: 0}, {x: 0, y: rail_direction[state]['rotate_'+enter_direction].y, z: 0}, target);
+          rotation = {x: rotation.x, y: rotation.y};
+        }
+      }
+      entity.teleport(location);
+      this.setEnterDirection(PRIVARE_SYMBOL, enter_direction);
+      this.setVirtualRotation(PRIVARE_SYMBOL, rotation);
     }while(false);
 
     system.run(()=>this.gameloop());

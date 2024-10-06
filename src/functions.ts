@@ -58,7 +58,7 @@ export function getNormalizedVector(start: Vector3, end: Vector3, location: Vect
  * @param {number} t - Normalized value (0 to 1)
  * @returns {Vector3} - Interpolated coordinates
  */
-function getLerpVector(start: Vector3, end: Vector3, t: number): Vector3 {
+export function getLerpVector(start: Vector3, end: Vector3, t: number): Vector3 {
     // Ensure t is within the range [0, 1]
     t = Math.max(0, Math.min(1, t));
 
@@ -121,13 +121,11 @@ export function toBlockLocation(location: Vector3): Vector3{
 }
 
 type nextBlockReturn = {
-  block: Block,
-  enter: string
+  block: Block
 }
 export function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): nextBlockReturn{
   return {
-    block: dimension.getBlock(toBlockLocation(location)),
-    enter: direction[rotation.y]
+    block: dimension.getBlock(toBlockLocation(location))
   }
   //TODO 下り勾配の対応
 }

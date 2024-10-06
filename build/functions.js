@@ -1,3 +1,21 @@
+export const direction = {
+    "-180": "north",
+    "0": "south",
+    "90": "west",
+    "-90": "east"
+};
+export const edge = {
+    "north": { x: 0.5, y: 0, z: 0 },
+    "south": { x: 0.5, y: 0, z: 1 },
+    "west": { x: -1, y: 0, z: 0.5 },
+    "east": { x: 0, y: 0, z: 0.5 }
+};
+export const direction_reverse = {
+    "north": "south",
+    "south": "north",
+    "west": "east",
+    "east": "west"
+};
 /**
  * Function to return a normalized value
  * @param {Vector3} start - Starting coordinates
@@ -24,6 +42,23 @@ export function getNormalizedVector(start, end, location) {
     // Calculate the normalized value
     const normalizedValue = locationLength / vectorLength;
     return normalizedValue;
+}
+/**
+ * Function to return interpolated coordinates based on a normalized value
+ * @param {Vector3} start - Starting coordinates
+ * @param {Vector3} end - Ending coordinates
+ * @param {number} t - Normalized value (0 to 1)
+ * @returns {Vector3} - Interpolated coordinates
+ */
+export function getLerpVector(start, end, t) {
+    // Ensure t is within the range [0, 1]
+    t = Math.max(0, Math.min(1, t));
+    // Calculate interpolated coordinates
+    return {
+        x: start.x + (end.x - start.x) * t,
+        y: start.y + (end.y - start.y) * t,
+        z: start.z + (end.z - start.z) * t
+    };
 }
 /**
  * Function to correct the position to the nearest point on the line segment (start, end)
@@ -65,5 +100,11 @@ export function correctToRail(start, end, location) {
 }
 export function toBlockLocation(location) {
     return { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) };
+}
+export function nextBlock(dimension, location, rotation) {
+    return {
+        block: dimension.getBlock(toBlockLocation(location))
+    };
+    //TODO 下り勾配の対応
 }
 //# sourceMappingURL=functions.js.map
