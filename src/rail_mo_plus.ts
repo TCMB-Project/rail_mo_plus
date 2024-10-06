@@ -107,9 +107,9 @@ export class RailMoPlusEntity{
       let enter_direction = this.getEnterDirection();
 
       let enter_edge: Vector3 = edge[direction_reverse[enter_direction]];
-      let start: Vector3 = { x: blockLocation.x + enter_edge.x, y: blockLocation.y + enter_edge.y, z: blockLocation.z + enter_edge.z };
+      let start: Vector3 = { x: Math.trunc(blockLocation.x) + enter_edge.x, y: Math.trunc(blockLocation.y) + enter_edge.y, z: Math.trunc(blockLocation.z) + enter_edge.z };
       let end_edge: Vector3 = rail_direction[state][enter_direction];
-      let end: Vector3 = { x: blockLocation.x + end_edge.x, y: blockLocation.y + end_edge.y, z: blockLocation.z + end_edge.z };
+      let end: Vector3 = { x: Math.trunc(blockLocation.x) + end_edge.x, y: Math.trunc(blockLocation.y) + end_edge.y, z: Math.trunc(blockLocation.z) + end_edge.z };
 
       location = correctToRail(start, end, location);
       const norm = getNormalizedVector(start, end, location);
