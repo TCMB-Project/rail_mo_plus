@@ -1,10 +1,10 @@
-import { Vector3, Block, Vector2, Dimension } from "@minecraft/server";
+import { Vector3, Block, Vector2, Dimension, Direction } from "@minecraft/server";
 
 export const direction = {
-  "-180": "north",
-  "0": "south",
-  "90": "west",
-  "-90": "east"
+  "-180": <Direction>"North",
+  "0": <Direction>"South",
+  "90": <Direction>"West",
+  "-90": <Direction>"East"
 }
 export const edge = {
   "north": <Vector3>{x: 0.5, y: 0, z: 0},
@@ -13,10 +13,10 @@ export const edge = {
   "east": <Vector3>{x: 0, y: 0, z: 0.5}
 }
 export const direction_reverse = {
-  "north": "south",
-  "south": "north",
-  "west": "east",
-  "east": "west"
+  "north": <Direction>"South",
+  "south": <Direction>"North",
+  "west": <Direction>"East",
+  "east": <Direction>"West"
 }
 
 /**
@@ -120,10 +120,19 @@ export function toBlockLocation(location: Vector3): Vector3{
   return {x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z)};
 }
 
-type nextBlockReturn = {
-  block: Block
+export function VectorAdd(vector1: Vector3, vector2: Vector3): Vector3 {
+  return {x: vector1.x + vector2.y, y: vector1.y + vector2.y, z: vector1.z + vector2.z}
 }
-export function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): nextBlockReturn{
+export function toVector3(vector: Vector2): Vector3{
+  return { x: vector.x, y: vector.y, z: 0}
+}
+export function toVector2(vector: Vector3): Vector2{
+  return { x: vector.x, y: vector.y}
+}
+
+export function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): {
+  block: Block
+}{
   return {
     block: dimension.getBlock(toBlockLocation(location))
   }
