@@ -147,6 +147,7 @@ export class RailMoPlusEntity{
           location = getLerpVector(start, end, target);
           rotation = getLerpVector({x: 0, y: rotation.y, z: 0}, {x: 0, y: rail_direction[state]['rotate_'+enter_direction].y, z: 0}, target);
           rotation = {x: rotation.x, y: rotation.y};
+          break;
         }
       }
       entity.teleport(location);
