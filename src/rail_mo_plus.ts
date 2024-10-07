@@ -1,6 +1,6 @@
 import { Entity, Block, system, Vector2, Vector3, world, Direction } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
-import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock } from "./functions";
+import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
@@ -104,12 +104,23 @@ export class RailMoPlusEntity{
       if(speed == 0) break;
       let entity = this.entity;
 
-      let location = entity.location;
+      let location: Vector3 = entity.location;
+      let block_location = toBlockLocation(location)
+      let current_block: Block = entity.dimension.getBlock(block_location);
+      if(typeof current_block == "undefined") return;
+      let state = current_block.permutation.getState('rail_direction');
+      if(typeof state != "number") return;
 
-      let target = Math.abs(speed)// + norm;
+      let enter = this.getEnterDirection();
+      let start = VectorAdd(block_location, edge[enter]);
+      let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+      let norm = getNormalizedVector(start, end, location);
+
+      console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);
+      let target = Math.abs(speed) + norm;
       while(true){
         if(target >= 1){
-
+          target--;
         }else{
 
           break;

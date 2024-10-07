@@ -1,20 +1,20 @@
 export const direction = {
-    "-180": "north",
-    "0": "south",
-    "90": "west",
-    "-90": "east"
+    "-180": "North",
+    "0": "South",
+    "90": "West",
+    "-90": "East"
 };
 export const edge = {
-    "north": { x: 0.5, y: 0, z: 0 },
-    "south": { x: 0.5, y: 0, z: 1 },
-    "west": { x: -1, y: 0, z: 0.5 },
-    "east": { x: 0, y: 0, z: 0.5 }
+    "North": { x: 0.5, y: 0, z: 0 },
+    "South": { x: 0.5, y: 0, z: 1 },
+    "West": { x: -1, y: 0, z: 0.5 },
+    "East": { x: 0, y: 0, z: 0.5 }
 };
 export const direction_reverse = {
-    "north": "south",
-    "south": "north",
-    "west": "east",
-    "east": "west"
+    "North": "South",
+    "South": "North",
+    "West": "East",
+    "East": "West"
 };
 /**
  * Function to return a normalized value
@@ -100,6 +100,15 @@ export function correctToRail(start, end, location) {
 }
 export function toBlockLocation(location) {
     return { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) };
+}
+export function VectorAdd(vector1, vector2) {
+    return { x: vector1.x + vector2.y, y: vector1.y + vector2.y, z: vector1.z + vector2.z };
+}
+export function toVector3(vector) {
+    return { x: vector.x, y: vector.y, z: 0 };
+}
+export function toVector2(vector) {
+    return { x: vector.x, y: vector.y };
 }
 export function nextBlock(dimension, location, rotation) {
     return {

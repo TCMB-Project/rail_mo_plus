@@ -1,4 +1,4 @@
-import { Entity, Vector2 } from "@minecraft/server";
+import { Entity, Vector2, Direction } from "@minecraft/server";
 export declare class RailMoPlusEntity {
     constructor(entity: Entity);
     entity: Entity;
@@ -16,8 +16,8 @@ export declare class RailMoPlusEntity {
      * @param rotation The x and y virtual rotation of the entity (in degrees).
      */
     setVirtualRotation(symbol: symbol, rotation: Vector2): void;
-    getEnterDirection(): string;
-    setEnterDirection(symbol: symbol, direction: string): void;
+    getEnterDirection(): Direction;
+    setEnterDirection(symbol: symbol, direction: Direction): void;
     isValid(): boolean;
     destroy(): void;
     private isDestroyed;

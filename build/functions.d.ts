@@ -1,21 +1,21 @@
-import { Vector3, Block, Vector2, Dimension } from "@minecraft/server";
+import { Vector3, Block, Vector2, Dimension, Direction } from "@minecraft/server";
 export declare const direction: {
-    "-180": string;
-    "0": string;
-    "90": string;
-    "-90": string;
+    "-180": Direction;
+    "0": Direction;
+    "90": Direction;
+    "-90": Direction;
 };
 export declare const edge: {
-    north: Vector3;
-    south: Vector3;
-    west: Vector3;
-    east: Vector3;
+    North: Vector3;
+    South: Vector3;
+    West: Vector3;
+    East: Vector3;
 };
 export declare const direction_reverse: {
-    north: string;
-    south: string;
-    west: string;
-    east: string;
+    North: Direction;
+    South: Direction;
+    West: Direction;
+    East: Direction;
 };
 /**
  * Function to return a normalized value
@@ -42,8 +42,9 @@ export declare function getLerpVector(start: Vector3, end: Vector3, t: number): 
  */
 export declare function correctToRail(start: Vector3, end: Vector3, location: Vector3): Vector3;
 export declare function toBlockLocation(location: Vector3): Vector3;
-type nextBlockReturn = {
+export declare function VectorAdd(vector1: Vector3, vector2: Vector3): Vector3;
+export declare function toVector3(vector: Vector2): Vector3;
+export declare function toVector2(vector: Vector3): Vector2;
+export declare function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): {
     block: Block;
 };
-export declare function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): nextBlockReturn;
-export {};

@@ -7,16 +7,16 @@ export const direction = {
   "-90": <Direction>"East"
 }
 export const edge = {
-  "north": <Vector3>{x: 0.5, y: 0, z: 0},
-  "south": <Vector3>{x: 0.5, y: 0, z: 1},
-  "west": <Vector3>{x: -1, y: 0, z: 0.5},
-  "east": <Vector3>{x: 0, y: 0, z: 0.5}
+  "North": <Vector3>{x: 0.5, y: 0, z: 0},
+  "South": <Vector3>{x: 0.5, y: 0, z: 1},
+  "West": <Vector3>{x: -1, y: 0, z: 0.5},
+  "East": <Vector3>{x: 0, y: 0, z: 0.5}
 }
 export const direction_reverse = {
-  "north": <Direction>"South",
-  "south": <Direction>"North",
-  "west": <Direction>"East",
-  "east": <Direction>"West"
+  "North": <Direction>"South",
+  "South": <Direction>"North",
+  "West": <Direction>"East",
+  "East": <Direction>"West"
 }
 
 /**
