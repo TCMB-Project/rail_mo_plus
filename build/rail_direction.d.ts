@@ -8,5 +8,6 @@ export declare const rail_direction: {
     West: ExitDirection;
     North: ExitDirection;
     South: ExitDirection;
+    default_enter: Direction;
 }[];
 export {};

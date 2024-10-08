@@ -74,7 +74,14 @@ export class RailMoPlusEntity{
   }
   getEnterDirection(): Direction{
     let direction_dp = this.entity.getDynamicProperty('rail_mo_plus:enter_direction');
-    if(typeof direction_dp != "string") throw Error('rail_mo_plus:enter_direction is not string');
+    if(typeof direction_dp != "string"){
+      let block_location = toBlockLocation(this.entity.location);
+      let current_block: Block = this.entity.dimension.getBlock(block_location);
+      let state = current_block.permutation.getState('rail_direction');
+      if(typeof state != "number") throw new Error("Unable to resolve Enter direction.");
+      direction_dp = rail_direction[state].default_enter;
+      this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction_dp);
+    }
     return <Direction>direction_dp;
   }
   setEnterDirection(symbol: symbol, direction: Direction): void{
@@ -107,13 +114,14 @@ export class RailMoPlusEntity{
       let location: Vector3 = entity.location;
       let block_location = toBlockLocation(location)
       let current_block: Block = entity.dimension.getBlock(block_location);
-      if(typeof current_block == "undefined") return;
+      if(typeof current_block == "undefined") break;
       let state = current_block.permutation.getState('rail_direction');
-      if(typeof state != "number") return;
+      if(typeof state != "number") break;
 
       let enter = this.getEnterDirection();
       let start = VectorAdd(block_location, edge[enter]);
       let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+      location = correctToRail(start, end, location);
       let norm = getNormalizedVector(start, end, location);
 
       console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);

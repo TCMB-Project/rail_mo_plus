@@ -1,6 +1,6 @@
 import { system, Direction } from "@minecraft/server";
 import { rail_direction } from "./rail_direction";
-import { getNormalizedVector, toBlockLocation, edge, direction_reverse, VectorAdd } from "./functions";
+import { correctToRail, getNormalizedVector, toBlockLocation, edge, direction_reverse, VectorAdd } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
 const east_west = [1, 2, 3];
@@ -72,8 +72,15 @@ export class RailMoPlusEntity {
     }
     getEnterDirection() {
         let direction_dp = this.entity.getDynamicProperty('rail_mo_plus:enter_direction');
-        if (typeof direction_dp != "string")
-            throw Error('rail_mo_plus:enter_direction is not string');
+        if (typeof direction_dp != "string") {
+            let block_location = toBlockLocation(this.entity.location);
+            let current_block = this.entity.dimension.getBlock(block_location);
+            let state = current_block.permutation.getState('rail_direction');
+            if (typeof state != "number")
+                throw new Error("Unable to resolve Enter direction.");
+            direction_dp = rail_direction[state].default_enter;
+            this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction_dp);
+        }
         return direction_dp;
     }
     setEnterDirection(symbol, direction) {
@@ -107,13 +114,14 @@ export class RailMoPlusEntity {
             let block_location = toBlockLocation(location);
             let current_block = entity.dimension.getBlock(block_location);
             if (typeof current_block == "undefined")
-                return;
+                break;
             let state = current_block.permutation.getState('rail_direction');
             if (typeof state != "number")
-                return;
+                break;
             let enter = this.getEnterDirection();
             let start = VectorAdd(block_location, edge[enter]);
             let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+            location = correctToRail(start, end, location);
             let norm = getNormalizedVector(start, end, location);
             console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);
             let target = Math.abs(speed) + norm;
