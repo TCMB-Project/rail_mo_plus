@@ -130,11 +130,30 @@ export function toVector2(vector: Vector3): Vector2{
   return { x: vector.x, y: vector.y}
 }
 
-export function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): {
-  block: Block
-}{
-  return {
-    block: dimension.getBlock(toBlockLocation(location))
+export function nextBlock(block: Block, direction: Direction, ascending: Direction): Block{
+  let after_block: Block | undefined;
+  switch(direction){
+    case "North":{
+      after_block = block.north();
+    }
+    case "South":{
+      after_block = block.south();
+    }
+    case "East":{
+      after_block = block.east();
+    }
+    case "West":{
+      after_block = block.west();
+    }
   }
-  //TODO 下り勾配の対応
+  if(typeof after_block == undefined) throw new Error('Unable to resolve next block');
+  if(after_block.typeId == 'minecraft:air'){
+    after_block = after_block.below();
+    if(after_block.typeId == 'minecraft:air') return;
+  }
+  if(ascending == "Up"){
+    after_block = after_block.above();
+  }
+
+  return after_block;
 }

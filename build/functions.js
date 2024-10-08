@@ -110,10 +110,32 @@ export function toVector3(vector) {
 export function toVector2(vector) {
     return { x: vector.x, y: vector.y };
 }
-export function nextBlock(dimension, location, rotation) {
-    return {
-        block: dimension.getBlock(toBlockLocation(location))
-    };
-    //TODO 下り勾配の対応
+export function nextBlock(block, direction, ascending) {
+    let after_block;
+    switch (direction) {
+        case "North": {
+            after_block = block.north();
+        }
+        case "South": {
+            after_block = block.south();
+        }
+        case "East": {
+            after_block = block.east();
+        }
+        case "West": {
+            after_block = block.west();
+        }
+    }
+    if (typeof after_block == undefined)
+        throw new Error('Unable to resolve next block');
+    if (after_block.typeId == 'minecraft:air') {
+        after_block = after_block.below();
+        if (after_block.typeId == 'minecraft:air')
+            return;
+    }
+    if (ascending == "Up") {
+        after_block = after_block.above();
+    }
+    return after_block;
 }
 //# sourceMappingURL=functions.js.map

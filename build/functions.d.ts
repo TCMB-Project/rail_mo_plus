@@ -1,4 +1,4 @@
-import { Vector3, Block, Vector2, Dimension, Direction } from "@minecraft/server";
+import { Vector3, Block, Vector2, Direction } from "@minecraft/server";
 export declare const direction: {
     "-180": Direction;
     "0": Direction;
@@ -45,6 +45,4 @@ export declare function toBlockLocation(location: Vector3): Vector3;
 export declare function VectorAdd(vector1: Vector3, vector2: Vector3): Vector3;
 export declare function toVector3(vector: Vector2): Vector3;
 export declare function toVector2(vector: Vector3): Vector2;
-export declare function nextBlock(dimension: Dimension, location: Vector3, rotation: Vector2): {
-    block: Block;
-};
+export declare function nextBlock(block: Block, direction: Direction, ascending: Direction): Block;

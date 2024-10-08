@@ -1,6 +1,6 @@
 import { system, Direction } from "@minecraft/server";
 import { rail_direction } from "./rail_direction";
-import { correctToRail, getNormalizedVector, toBlockLocation, edge, direction_reverse, VectorAdd } from "./functions";
+import { correctToRail, getNormalizedVector, toBlockLocation, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
 const east_west = [1, 2, 3];
@@ -24,15 +24,15 @@ export class RailMoPlusEntity {
             let state = current_block.permutation.getState('rail_direction');
             if (typeof state != 'number')
                 return;
-            if (north_south.includes(state)) {
-                this.setVirtualRotation(PRIVARE_SYMBOL, { x: 0, y: 0 });
-                this.setEnterDirection(PRIVARE_SYMBOL, Direction.North);
+            /*
+            if(north_south.includes(state)){
+              this.setVirtualRotation(PRIVARE_SYMBOL, {x: 0, y: 0});
+              this.setEnterDirection(PRIVARE_SYMBOL, Direction.North);
+            }else if(east_west.includes(state)){
+              this.setVirtualRotation(PRIVARE_SYMBOL, {x: 0, y: -90});
+              this.setEnterDirection(PRIVARE_SYMBOL, Direction.West);
             }
-            else if (east_west.includes(state)) {
-                this.setVirtualRotation(PRIVARE_SYMBOL, { x: 0, y: -90 });
-                this.setEnterDirection(PRIVARE_SYMBOL, Direction.West);
-            }
-            //TODO 曲線レールの上にスポーンしても対応できるようにする
+            */
         }
         system.run(() => this.gameloop());
     }
@@ -102,13 +102,6 @@ export class RailMoPlusEntity {
         if (!this.isValid())
             return;
         do {
-            /*
-              km/h to m/tick
-              https://github.com/HakoMC/minecart_speed_list/blob/main/minecart_speed.txt
-            */
-            const speed = this.getSpeed() / 72;
-            if (speed == 0)
-                break;
             let entity = this.entity;
             let location = entity.location;
             let block_location = toBlockLocation(location);
@@ -121,12 +114,26 @@ export class RailMoPlusEntity {
             let enter = this.getEnterDirection();
             let start = VectorAdd(block_location, edge[enter]);
             let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+            if (rail_direction[state][enter].ascending == Direction.Up)
+                end = VectorAdd(end, { x: 0, y: 1, z: 0 });
+            if (rail_direction[state][enter].ascending == Direction.Down)
+                start = VectorAdd(start, { x: 0, y: 1, z: 0 });
             location = correctToRail(start, end, location);
+            /*
+              km/h to m/tick
+              https://github.com/HakoMC/minecart_speed_list/blob/main/minecart_speed.txt
+            */
+            const speed = this.getSpeed() / 72;
+            //Ignore gravity
+            if (speed == 0)
+                entity.teleport(location);
             let norm = getNormalizedVector(start, end, location);
             console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);
             let target = Math.abs(speed) + norm;
             while (true) {
                 if (target >= 1) {
+                    current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
+                    enter = direction_reverse[rail_direction[state][enter].direction];
                     target--;
                 }
                 else {
