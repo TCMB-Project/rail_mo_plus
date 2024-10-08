@@ -102,7 +102,7 @@ export function toBlockLocation(location) {
     return { x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) };
 }
 export function VectorAdd(vector1, vector2) {
-    return { x: vector1.x + vector2.y, y: vector1.y + vector2.y, z: vector1.z + vector2.z };
+    return { x: vector1.x + vector2.x, y: vector1.y + vector2.y, z: vector1.z + vector2.z };
 }
 export function toVector3(vector) {
     return { x: vector.x, y: vector.y, z: 0 };

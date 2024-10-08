@@ -121,7 +121,7 @@ export function toBlockLocation(location: Vector3): Vector3{
 }
 
 export function VectorAdd(vector1: Vector3, vector2: Vector3): Vector3 {
-  return {x: vector1.x + vector2.y, y: vector1.y + vector2.y, z: vector1.z + vector2.z}
+  return {x: vector1.x + vector2.x, y: vector1.y + vector2.y, z: vector1.z + vector2.z}
 }
 export function toVector3(vector: Vector2): Vector3{
   return { x: vector.x, y: vector.y, z: 0}
