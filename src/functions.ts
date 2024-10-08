@@ -9,8 +9,8 @@ export const direction = {
 export const edge = {
   "North": <Vector3>{x: 0.5, y: 0, z: 0},
   "South": <Vector3>{x: 0.5, y: 0, z: 1},
-  "West": <Vector3>{x: -1, y: 0, z: 0.5},
-  "East": <Vector3>{x: 0, y: 0, z: 0.5}
+  "West": <Vector3>{x: 0, y: 0, z: 0.5},
+  "East": <Vector3>{x: 1, y: 0, z: 0.5}
 }
 export const direction_reverse = {
   "North": <Direction>"South",

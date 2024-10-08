@@ -7,8 +7,8 @@ export const direction = {
 export const edge = {
     "North": { x: 0.5, y: 0, z: 0 },
     "South": { x: 0.5, y: 0, z: 1 },
-    "West": { x: -1, y: 0, z: 0.5 },
-    "East": { x: 0, y: 0, z: 0.5 }
+    "West": { x: 0, y: 0, z: 0.5 },
+    "East": { x: 1, y: 0, z: 0.5 }
 };
 export const direction_reverse = {
     "North": "South",
