@@ -148,6 +148,8 @@ export class RailMoPlusEntity {
                     break;
                 }
             }
+            entity.teleport(location);
+            this.setEnterDirection(PRIVARE_SYMBOL, enter);
         } while (false);
         system.run(() => this.gameloop());
     }
