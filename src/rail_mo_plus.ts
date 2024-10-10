@@ -134,6 +134,8 @@ export class RailMoPlusEntity{
         if(target >= 1){
           current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending)
           enter = direction_reverse[rail_direction[state][enter].direction];
+          start = VectorAdd(block_location, edge[enter]);
+          end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
           target--;
         }else{
           location = getLerpVector(start, end, target);
