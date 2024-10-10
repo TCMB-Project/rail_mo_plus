@@ -1,6 +1,6 @@
 import { system, Direction } from "@minecraft/server";
 import { rail_direction } from "./rail_direction";
-import { correctToRail, getNormalizedVector, toBlockLocation, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
+import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 const north_south = [0, 4, 5];
 const east_west = [1, 2, 3];
@@ -128,7 +128,6 @@ export class RailMoPlusEntity {
             if (speed == 0)
                 entity.teleport(location);
             let norm = getNormalizedVector(start, end, location);
-            console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);
             let target = Math.abs(speed) + norm;
             while (true) {
                 if (target >= 1) {
@@ -137,6 +136,8 @@ export class RailMoPlusEntity {
                     target--;
                 }
                 else {
+                    location = getLerpVector(start, end, target);
+                    entity.dimension.spawnParticle('', location);
                     break;
                 }
             }

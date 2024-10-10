@@ -128,20 +128,19 @@ export class RailMoPlusEntity{
       if(speed == 0) entity.teleport(location);
 
       let norm = getNormalizedVector(start, end, location);
-
-      console.warn(`\nfrom[${start.x} ${start.y} ${start.z}] to [${end.x} ${end.y} ${end.z}]\n`, `enter: ${enter}\n`, `norm: ${norm}`);
       let target = Math.abs(speed) + norm;
+      
       while(true){
         if(target >= 1){
           current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending)
           enter = direction_reverse[rail_direction[state][enter].direction];
           target--;
         }else{
-
+          location = getLerpVector(start, end, target);
+          entity.dimension.spawnParticle('', location)
           break;
         }
       }
-
     }while(false);
 
     system.run(()=>this.gameloop());
