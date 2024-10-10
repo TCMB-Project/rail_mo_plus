@@ -133,7 +133,11 @@ export class RailMoPlusEntity{
       while(true){
         if(target >= 1){
           current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
+          if(typeof current_block == "undefined") return;
           block_location = current_block.location;
+          state = current_block.permutation.getState('rail_direction');
+          if(typeof state != "number") break;
+
           enter = direction_reverse[rail_direction[state][enter].direction];
           start = VectorAdd(block_location, edge[enter]);
           end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
