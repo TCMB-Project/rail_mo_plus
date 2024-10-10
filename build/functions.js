@@ -114,27 +114,27 @@ export function nextBlock(block, direction, ascending) {
     let after_block;
     switch (direction) {
         case "North": {
-            after_block = block.north();
+            after_block = block.offset({ x: 0, y: 0, z: -1 });
         }
         case "South": {
-            after_block = block.south();
+            after_block = block.offset({ x: 0, y: 0, z: 1 });
         }
         case "East": {
-            after_block = block.east();
+            after_block = block.offset({ x: 1, y: 0, z: 0 });
         }
         case "West": {
-            after_block = block.west();
+            after_block = block.offset({ x: -1, y: 0, z: 0 });
         }
     }
     if (typeof after_block == undefined)
         throw new Error('Unable to resolve next block');
     if (after_block.typeId == 'minecraft:air') {
-        after_block = after_block.below();
+        after_block = after_block.offset({ x: 0, y: -1, z: 0 });
         if (after_block.typeId == 'minecraft:air')
             return;
     }
     if (ascending == "Up") {
-        after_block = after_block.above();
+        after_block = after_block.offset({ x: 0, y: 1, z: 0 });
     }
     return after_block;
 }

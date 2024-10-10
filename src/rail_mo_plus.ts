@@ -137,7 +137,6 @@ export class RailMoPlusEntity{
           target--;
         }else{
           location = getLerpVector(start, end, target);
-          entity.dimension.spawnParticle('', location)
           break;
         }
       }
