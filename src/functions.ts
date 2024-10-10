@@ -136,15 +136,19 @@ export function nextBlock(block: Block, direction: Direction, ascending: Directi
     case "North":{
       after_block = block.offset({x: 0, y: 0, z: -1});
     }
+    break;
     case "South":{
       after_block = block.offset({x: 0, y: 0, z: 1});
     }
+    break;
     case "East":{
       after_block = block.offset({x: 1, y: 0, z: 0});
     }
+    break;
     case "West":{
       after_block = block.offset({x: -1, y: 0, z: 0});
     }
+    break;
   }
   if(typeof after_block == undefined) throw new Error('Unable to resolve next block');
   if(after_block.typeId == 'minecraft:air'){

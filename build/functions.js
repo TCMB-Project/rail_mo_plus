@@ -113,18 +113,26 @@ export function toVector2(vector) {
 export function nextBlock(block, direction, ascending) {
     let after_block;
     switch (direction) {
-        case "North": {
-            after_block = block.offset({ x: 0, y: 0, z: -1 });
-        }
-        case "South": {
-            after_block = block.offset({ x: 0, y: 0, z: 1 });
-        }
-        case "East": {
-            after_block = block.offset({ x: 1, y: 0, z: 0 });
-        }
-        case "West": {
-            after_block = block.offset({ x: -1, y: 0, z: 0 });
-        }
+        case "North":
+            {
+                after_block = block.offset({ x: 0, y: 0, z: -1 });
+            }
+            break;
+        case "South":
+            {
+                after_block = block.offset({ x: 0, y: 0, z: 1 });
+            }
+            break;
+        case "East":
+            {
+                after_block = block.offset({ x: 1, y: 0, z: 0 });
+            }
+            break;
+        case "West":
+            {
+                after_block = block.offset({ x: -1, y: 0, z: 0 });
+            }
+            break;
     }
     if (typeof after_block == undefined)
         throw new Error('Unable to resolve next block');
