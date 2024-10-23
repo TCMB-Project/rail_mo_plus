@@ -139,6 +139,7 @@ export class RailMoPlusEntity {
             let time = current_time.getTime() - last_time.getTime();
             console.log(time);
             const distance = Math.abs(speed) * time;
+            this.setLastTickTime(PRIVARE_SYMBOL, current_time);
             //Ignore gravity
             if (speed == 0) {
                 entity.teleport(location);
