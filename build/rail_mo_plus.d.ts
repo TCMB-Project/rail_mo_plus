@@ -18,6 +18,8 @@ export declare class RailMoPlusEntity {
     setVirtualRotation(symbol: symbol, rotation: Vector2): void;
     getEnterDirection(): Direction;
     setEnterDirection(symbol: symbol, direction: Direction): void;
+    getLastTickTime(): Date;
+    setLastTickTime(symbol: symbol, time: Date): void;
     isValid(): boolean;
     destroy(): void;
     private isDestroyed;
