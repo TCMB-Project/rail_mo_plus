@@ -2,40 +2,25 @@ import { system, Direction } from "@minecraft/server";
 import { rail_direction } from "./rail_direction";
 import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
-const north_south = [0, 4, 5];
-const east_west = [1, 2, 3];
-const ascending = [2, 3, 4, 5];
-const curve = [6, 7, 8, 9];
 export class RailMoPlusEntity {
-    constructor(entity /*, rotate: boolean*/) {
-        this.entity = entity;
+    /**
+     * Create an instance for control and start control by RailMoPlus.
+     * @param entity controlling entity
+     * @param initRotate Entity rotation. (Equivalent to setting minecraft:minecart to runtime_identifier)
+     */
+    constructor(entity, initRotate = false /*, rotate: boolean*/) {
         this.isDestroyed = false;
+        this.entity = entity;
         //this.rotate = rotate;
         if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')) {
             entity.setDynamicProperty('rail_mo_plus:speed', 0);
         }
         this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
+        if (initRotate) {
+            entity.setRotation({ x: 0, y: 0 });
+        }
         let current_time = new Date();
         this.setLastTickTime(PRIVARE_SYMBOL, current_time);
-        if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_x') || !entity.getDynamicPropertyIds().includes('rail_mo_plus:vrotation_y')) {
-            //virtual rotation
-            const location = this.entity.location;
-            const current_block = this.entity.dimension.getBlock({ x: Math.floor(location.x), y: Math.floor(location.y), z: Math.floor(location.z) });
-            if (typeof current_block == "undefined")
-                return;
-            let state = current_block.permutation.getState('rail_direction');
-            if (typeof state != 'number')
-                return;
-            /*
-            if(north_south.includes(state)){
-              this.setVirtualRotation(PRIVARE_SYMBOL, {x: 0, y: 0});
-              this.setEnterDirection(PRIVARE_SYMBOL, Direction.North);
-            }else if(east_west.includes(state)){
-              this.setVirtualRotation(PRIVARE_SYMBOL, {x: 0, y: -90});
-              this.setEnterDirection(PRIVARE_SYMBOL, Direction.West);
-            }
-            */
-        }
         system.run(() => this.gameloop());
     }
     /**
@@ -52,25 +37,6 @@ export class RailMoPlusEntity {
     getSpeed() {
         let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
         return typeof speedDP == 'number' ? speedDP : 0;
-    }
-    getVirtualRotation() {
-        let vrotation_x_dp = this.entity.getDynamicProperty('rail_mo_plus:vrotation_x');
-        let vrotation_y_dp = this.entity.getDynamicProperty('rail_mo_plus:vrotation_y');
-        let vrotation_x = typeof vrotation_x_dp == "number" ? vrotation_x_dp : 0;
-        let vrotation_y = typeof vrotation_y_dp == "number" ? vrotation_y_dp : 0;
-        return { x: vrotation_x, y: vrotation_y };
-    }
-    /**
-     * Internal use only
-     * Sets the virtual rotation of the entity.
-     * @param symbol Symbol stored in PRIVATE_SYMBOL
-     * @param rotation The x and y virtual rotation of the entity (in degrees).
-     */
-    setVirtualRotation(symbol, rotation) {
-        if (symbol != PRIVARE_SYMBOL)
-            throw Error('Use from outside the module is not allowed.');
-        this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', rotation.x);
-        this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', rotation.y);
     }
     getEnterDirection() {
         let direction_dp = this.entity.getDynamicProperty('rail_mo_plus:enter_direction');
@@ -93,13 +59,28 @@ export class RailMoPlusEntity {
     getLastTickTime() {
         let dp = this.entity.getDynamicProperty('rail_mo_plus:last_tick_time');
         if (typeof dp != 'number')
-            throw Error('rail_mo_plus:last_tick_time is not a number.');
+            throw new Error('rail_mo_plus:last_tick_time is not a number.');
         return new Date(dp);
     }
     setLastTickTime(symbol, time) {
         if (symbol != PRIVARE_SYMBOL)
             throw Error('Use from outside the module is not allowed.');
         this.entity.setDynamicProperty('rail_mo_plus:last_tick_time', time.getTime());
+    }
+    getMileage() {
+        let mileage_dp = this.entity.getDynamicProperty('rail_mo_plus:mileage');
+        if (typeof mileage_dp != "number")
+            throw new Error('rail_mo_plus:mileage is not a number.');
+        return mileage_dp;
+    }
+    setMileage(mileage) {
+        this.entity.setDynamicProperty('rail_mo_plus:mileage', mileage);
+    }
+    addMileage(distance) {
+        let mileage = this.getMileage();
+        mileage += distance;
+        this.setMileage(mileage);
+        return mileage;
     }
     isValid() {
         return this.entity.isValid() && !this.isDestroyed;
@@ -167,6 +148,7 @@ export class RailMoPlusEntity {
             }
             entity.teleport(location);
             this.setEnterDirection(PRIVARE_SYMBOL, enter);
+            this.addMileage(distance);
         } while (false);
         system.run(() => this.gameloop());
     }

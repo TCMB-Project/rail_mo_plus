@@ -1,6 +1,11 @@
-import { Entity, Vector2, Direction } from "@minecraft/server";
+import { Entity, Direction } from "@minecraft/server";
 export declare class RailMoPlusEntity {
-    constructor(entity: Entity);
+    /**
+     * Create an instance for control and start control by RailMoPlus.
+     * @param entity controlling entity
+     * @param initRotate Entity rotation. (Equivalent to setting minecraft:minecart to runtime_identifier)
+     */
+    constructor(entity: Entity, initRotate?: boolean);
     entity: Entity;
     /**
      * Set the speed.
@@ -8,18 +13,13 @@ export declare class RailMoPlusEntity {
      */
     setSpeed(speed: number): void;
     getSpeed(): number;
-    getVirtualRotation(): Vector2;
-    /**
-     * Internal use only
-     * Sets the virtual rotation of the entity.
-     * @param symbol Symbol stored in PRIVATE_SYMBOL
-     * @param rotation The x and y virtual rotation of the entity (in degrees).
-     */
-    setVirtualRotation(symbol: symbol, rotation: Vector2): void;
     getEnterDirection(): Direction;
     setEnterDirection(symbol: symbol, direction: Direction): void;
     getLastTickTime(): Date;
     setLastTickTime(symbol: symbol, time: Date): void;
+    getMileage(): number;
+    setMileage(mileage: number): void;
+    addMileage(distance: number): number;
     isValid(): boolean;
     destroy(): void;
     private isDestroyed;
