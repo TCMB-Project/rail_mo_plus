@@ -33,12 +33,24 @@ export class RailMoPlusEntity{
   }
   entity: Entity;
   connected: RailMoPlusEntity[] = [];
-  connect(entity: RailMoPlusEntity): void{
+  connect(entity: RailMoPlusEntity[]): void{
     if(!this.isValid()){
       RailMoPlusEntity.instances.delete(this.entity.id);
       return;
     }
-    this.connected.push(entity);
+    this.connected.concat(entity);
+  }
+  uncouple(offset: number): RailMoPlusEntity{
+    if(!this.isValid()){
+      RailMoPlusEntity.instances.delete(this.entity.id);
+      return;
+    }
+
+    let uncoupled = this.connected.splice(offset - 1);
+    let uncoupled_front = uncoupled.shift();
+    uncoupled_front.connect.apply(uncoupled);
+
+    return uncoupled_front;
   }
   onLoop: ()=>void = function(){};
   /**

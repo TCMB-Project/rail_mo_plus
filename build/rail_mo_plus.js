@@ -34,7 +34,17 @@ export class RailMoPlusEntity {
             RailMoPlusEntity.instances.delete(this.entity.id);
             return;
         }
-        this.connected.push(entity);
+        this.connected.concat(entity);
+    }
+    uncouple(offset) {
+        if (!this.isValid()) {
+            RailMoPlusEntity.instances.delete(this.entity.id);
+            return;
+        }
+        let uncoupled = this.connected.splice(offset - 1);
+        let uncoupled_front = uncoupled.shift();
+        uncoupled_front.connect.apply(uncoupled);
+        return uncoupled_front;
     }
     /**
      * Set the speed.

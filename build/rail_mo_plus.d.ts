@@ -9,7 +9,8 @@ export declare class RailMoPlusEntity {
     constructor(entity: Entity, initRotate?: boolean);
     entity: Entity;
     connected: RailMoPlusEntity[];
-    connect(entity: RailMoPlusEntity): void;
+    connect(entity: RailMoPlusEntity[]): void;
+    uncouple(offset: number): RailMoPlusEntity;
     onLoop: () => void;
     /**
      * Set the speed.
