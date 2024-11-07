@@ -52,7 +52,7 @@ export class RailMoPlusEntity{
 
     return uncoupled_front;
   }
-  onLoop: ()=>void = function(){};
+  onLoop: (entity: RailMoPlusEntity)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
@@ -231,7 +231,7 @@ export class RailMoPlusEntity{
       this.setEnterDirection(PRIVARE_SYMBOL, enter);
       this.addMileage(distance);
     }while(false);
-    this.onLoop();
+    this.onLoop(this);
     system.run(()=>this.gameloop());
   }
 }

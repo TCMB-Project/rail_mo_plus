@@ -10,7 +10,7 @@ export class RailMoPlusEntity {
      */
     constructor(entity, initRotate = false /*, rotate: boolean*/) {
         this.connected = [];
-        this.onLoop = function () { };
+        this.onLoop = function (_) { };
         this.isDestroyed = false;
         if (RailMoPlusEntity.instances.has(entity.id)) {
             return RailMoPlusEntity.instances.get(entity.id);
@@ -216,7 +216,7 @@ export class RailMoPlusEntity {
             this.setEnterDirection(PRIVARE_SYMBOL, enter);
             this.addMileage(distance);
         } while (false);
-        this.onLoop();
+        this.onLoop(this);
         system.run(() => this.gameloop());
     }
 }
