@@ -21,6 +21,9 @@ export class RailMoPlusEntity{
     if(!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')){
       entity.setDynamicProperty('rail_mo_plus:speed', 0);
     }
+    if(!entity.getDynamicPropertyIds().includes('rail_mo_plus:mileage')){
+      this.setMileage(0);
+    }
     this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
     if(initRotate){
       entity.setRotation({x: 0, y: 0});
