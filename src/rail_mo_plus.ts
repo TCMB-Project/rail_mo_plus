@@ -164,11 +164,13 @@ export class RailMoPlusEntity{
   }
   destroy(): void{
     this.isDestroyed = true;
-    this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
-    this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', undefined);
-    this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
-    this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
     RailMoPlusEntity.instances.delete(this.entity.id);
+    if(this.entity.isValid()){
+      this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
+      this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', undefined);
+      this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
+      this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
+    }
   }
   private isDestroyed: boolean = false;
 
