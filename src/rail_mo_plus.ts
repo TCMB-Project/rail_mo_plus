@@ -38,15 +38,13 @@ export class RailMoPlusEntity{
   connected: RailMoPlusEntity[] = [];
   connect(entity: RailMoPlusEntity[]): void{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
     this.connected.concat(entity);
   }
   uncouple(offset: number): RailMoPlusEntity{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let uncoupled = this.connected.splice(offset - 1);
@@ -62,8 +60,7 @@ export class RailMoPlusEntity{
    */
   setSpeed(speed: number): void{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
@@ -78,8 +75,7 @@ export class RailMoPlusEntity{
   }
   getSpeed(): number{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
@@ -87,8 +83,7 @@ export class RailMoPlusEntity{
   }
   getEnterDirection(): Direction{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let direction_dp = this.entity.getDynamicProperty('rail_mo_plus:enter_direction');
@@ -104,8 +99,7 @@ export class RailMoPlusEntity{
   }
   setEnterDirection(symbol: symbol, direction: Direction): void{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     if(symbol != PRIVARE_SYMBOL) throw Error('Use from outside the module is not allowed.');
@@ -113,8 +107,7 @@ export class RailMoPlusEntity{
   }
   getLastTickTime(): Date{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let dp = this.entity.getDynamicProperty('rail_mo_plus:last_tick_time');
@@ -123,8 +116,7 @@ export class RailMoPlusEntity{
   }
   setLastTickTime(symbol: symbol, time: Date): void{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     if(symbol != PRIVARE_SYMBOL) throw Error('Use from outside the module is not allowed.');
@@ -132,8 +124,7 @@ export class RailMoPlusEntity{
   }
   getMileage(): number{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let mileage_dp = this.entity.getDynamicProperty('rail_mo_plus:mileage');
@@ -142,16 +133,14 @@ export class RailMoPlusEntity{
   }
   setMileage(mileage: number): void{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
-    };
+      throw new Error('The entity is invalid.');
+    }
 
     this.entity.setDynamicProperty('rail_mo_plus:mileage', mileage);
   }
   addMileage(distance: number): number{
     if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
-      return;
+      throw new Error('The entity is invalid.');
     }
 
     let mileage = this.getMileage();
@@ -175,12 +164,12 @@ export class RailMoPlusEntity{
   private isDestroyed: boolean = false;
 
   private gameloop(): void{
-    if(!this.isValid()){
-      RailMoPlusEntity.instances.delete(this.entity.id);
+    if(this.isDestroyed){
       return;
     }
     do{
       let entity = this.entity;
+      if(!entity.isValid()) break;
 
       let location: Vector3 = entity.location;
       let block_location = toBlockLocation(location)

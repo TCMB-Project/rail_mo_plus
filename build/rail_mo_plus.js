@@ -34,15 +34,13 @@ export class RailMoPlusEntity {
     }
     connect(entity) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         this.connected.concat(entity);
     }
     uncouple(offset) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let uncoupled = this.connected.splice(offset - 1);
         let uncoupled_front = uncoupled.shift();
@@ -55,8 +53,7 @@ export class RailMoPlusEntity {
      */
     setSpeed(speed) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
         let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
@@ -69,16 +66,14 @@ export class RailMoPlusEntity {
     }
     getSpeed() {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
         return typeof speedDP == 'number' ? speedDP : 0;
     }
     getEnterDirection() {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let direction_dp = this.entity.getDynamicProperty('rail_mo_plus:enter_direction');
         if (typeof direction_dp != "string") {
@@ -94,8 +89,7 @@ export class RailMoPlusEntity {
     }
     setEnterDirection(symbol, direction) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         if (symbol != PRIVARE_SYMBOL)
             throw Error('Use from outside the module is not allowed.');
@@ -103,8 +97,7 @@ export class RailMoPlusEntity {
     }
     getLastTickTime() {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let dp = this.entity.getDynamicProperty('rail_mo_plus:last_tick_time');
         if (typeof dp != 'number')
@@ -113,8 +106,7 @@ export class RailMoPlusEntity {
     }
     setLastTickTime(symbol, time) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         if (symbol != PRIVARE_SYMBOL)
             throw Error('Use from outside the module is not allowed.');
@@ -122,8 +114,7 @@ export class RailMoPlusEntity {
     }
     getMileage() {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let mileage_dp = this.entity.getDynamicProperty('rail_mo_plus:mileage');
         if (typeof mileage_dp != "number")
@@ -132,16 +123,13 @@ export class RailMoPlusEntity {
     }
     setMileage(mileage) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
-        ;
         this.entity.setDynamicProperty('rail_mo_plus:mileage', mileage);
     }
     addMileage(distance) {
         if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
-            return;
+            throw new Error('The entity is invalid.');
         }
         let mileage = this.getMileage();
         mileage += distance;
@@ -162,12 +150,13 @@ export class RailMoPlusEntity {
         }
     }
     gameloop() {
-        if (!this.isValid()) {
-            RailMoPlusEntity.instances.delete(this.entity.id);
+        if (this.isDestroyed) {
             return;
         }
         do {
             let entity = this.entity;
+            if (!entity.isValid())
+                break;
             let location = entity.location;
             let block_location = toBlockLocation(location);
             let current_block = entity.dimension.getBlock(block_location);
