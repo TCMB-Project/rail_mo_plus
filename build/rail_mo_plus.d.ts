@@ -7,6 +7,7 @@ export declare class RailMoPlusEntity {
      * @param initRotate Rotate the entity. (Equivalent to setting runtime_identifier to minecraft:minecart)
      */
     constructor(entity: Entity, initRotate?: boolean);
+    lastTickTime: Date;
     entity: Entity;
     connected: RailMoPlusEntity[];
     connect(entity: RailMoPlusEntity[]): void;
@@ -20,8 +21,6 @@ export declare class RailMoPlusEntity {
     getSpeed(): number;
     getEnterDirection(): Direction;
     setEnterDirection(symbol: symbol, direction: Direction): void;
-    getLastTickTime(): Date;
-    setLastTickTime(symbol: symbol, time: Date): void;
     getMileage(): number;
     setMileage(mileage: number): void;
     addMileage(distance: number): number;

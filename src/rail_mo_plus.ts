@@ -29,11 +29,12 @@ export class RailMoPlusEntity{
       entity.setRotation({x: 0, y: 0});
     }
     let current_time = new Date();
-    this.setLastTickTime(PRIVARE_SYMBOL, current_time);
+    this.lastTickTime = current_time;
 
     RailMoPlusEntity.instances.set(entity.id, this);
     system.run(()=>this.gameloop());
   }
+  lastTickTime: Date;
   entity: Entity;
   connected: RailMoPlusEntity[] = [];
   connect(entity: RailMoPlusEntity[]): void{
@@ -105,23 +106,6 @@ export class RailMoPlusEntity{
     if(symbol != PRIVARE_SYMBOL) throw Error('Use from outside the module is not allowed.');
     this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
   }
-  getLastTickTime(): Date{
-    if(!this.isValid()){
-      throw new Error('The entity is invalid.');
-    }
-
-    let dp = this.entity.getDynamicProperty('rail_mo_plus:last_tick_time');
-    if(typeof dp != 'number') throw new Error('rail_mo_plus:last_tick_time is not a number.');
-    return new Date(dp);
-  }
-  setLastTickTime(symbol: symbol, time: Date): void{
-    if(!this.isValid()){
-      throw new Error('The entity is invalid.');
-    }
-
-    if(symbol != PRIVARE_SYMBOL) throw Error('Use from outside the module is not allowed.');
-    this.entity.setDynamicProperty('rail_mo_plus:last_tick_time', time.getTime());
-  }
   getMileage(): number{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
@@ -188,12 +172,12 @@ export class RailMoPlusEntity{
       // km/h to m/ms
       const speed = this.getSpeed() / 3600;
 
-      let last_time = this.getLastTickTime();
+      let last_time = this.lastTickTime;
       let current_time = new Date();
       let time = current_time.getTime() - last_time.getTime();
       const distance = Math.abs(speed) * time;
 
-      this.setLastTickTime(PRIVARE_SYMBOL, current_time);
+      this.lastTickTime = current_time;
 
       //Ignore gravity
       if(speed == 0){
