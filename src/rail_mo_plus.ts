@@ -54,7 +54,7 @@ export class RailMoPlusEntity{
 
     return uncoupled_front;
   }
-  onLoop: (entity: RailMoPlusEntity)=>void = function(_){};
+  onLoop: (entity: RailMoPlusEntity, time: number)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
@@ -151,6 +151,10 @@ export class RailMoPlusEntity{
     if(this.isDestroyed){
       return;
     }
+    let last_time = this.lastTickTime;
+    let current_time = new Date();
+    let time = current_time.getTime() - last_time.getTime();
+
     do{
       let entity = this.entity;
       if(!entity.isValid()) break;
@@ -172,9 +176,6 @@ export class RailMoPlusEntity{
       // km/h to m/ms
       const speed = this.getSpeed() / 3600;
 
-      let last_time = this.lastTickTime;
-      let current_time = new Date();
-      let time = current_time.getTime() - last_time.getTime();
       const distance = Math.abs(speed) * time;
 
       this.lastTickTime = current_time;
@@ -209,7 +210,7 @@ export class RailMoPlusEntity{
       this.setEnterDirection(PRIVARE_SYMBOL, enter);
       this.addMileage(distance);
     }while(false);
-    this.onLoop(this);
+    this.onLoop(this, time);
     system.run(()=>this.gameloop());
   }
 }
