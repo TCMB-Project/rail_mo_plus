@@ -10,6 +10,7 @@ export class RailMoPlusEntity {
      */
     constructor(entity, initRotate = false /*, rotate: boolean*/) {
         this.connected = [];
+        this.control = true;
         this.onLoop = function (_) { };
         this.isDestroyed = false;
         if (RailMoPlusEntity.instances.has(entity.id)) {
@@ -139,60 +140,62 @@ export class RailMoPlusEntity {
         let last_time = this.lastTickTime;
         let current_time = new Date();
         let time = current_time.getTime() - last_time.getTime();
-        do {
-            let entity = this.entity;
-            if (!entity.isValid())
-                break;
-            let location = entity.location;
-            let block_location = toBlockLocation(location);
-            let current_block = entity.dimension.getBlock(block_location);
-            if (typeof current_block == "undefined")
-                break;
-            let state = current_block.permutation.getState('rail_direction');
-            if (typeof state != "number")
-                break;
-            let enter = this.getEnterDirection();
-            let start = VectorAdd(block_location, edge[enter]);
-            let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
-            if (rail_direction[state][enter].ascending == Direction.Up)
-                end = VectorAdd(end, { x: 0, y: 1, z: 0 });
-            if (rail_direction[state][enter].ascending == Direction.Down)
-                start = VectorAdd(start, { x: 0, y: 1, z: 0 });
-            location = correctToRail(start, end, location);
-            // km/h to m/ms
-            const speed = this.getSpeed() / 3600;
-            const distance = Math.abs(speed) * time;
-            this.lastTickTime = current_time;
-            //Ignore gravity
-            if (speed == 0) {
-                entity.teleport(location);
-                break;
-            }
-            let norm = getNormalizedVector(start, end, location);
-            let target = distance + norm;
-            while (true) {
-                if (target >= 1) {
-                    current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
-                    if (typeof current_block == "undefined")
-                        break;
-                    enter = direction_reverse[rail_direction[state][enter].direction];
-                    block_location = current_block.location;
-                    state = current_block.permutation.getState('rail_direction');
-                    if (typeof state != "number")
-                        break;
-                    start = VectorAdd(block_location, edge[enter]);
-                    end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
-                    target--;
-                }
-                else {
-                    location = getLerpVector(start, end, target);
+        if (this.control) {
+            do {
+                let entity = this.entity;
+                if (!entity.isValid())
+                    break;
+                let location = entity.location;
+                let block_location = toBlockLocation(location);
+                let current_block = entity.dimension.getBlock(block_location);
+                if (typeof current_block == "undefined")
+                    break;
+                let state = current_block.permutation.getState('rail_direction');
+                if (typeof state != "number")
+                    break;
+                let enter = this.getEnterDirection();
+                let start = VectorAdd(block_location, edge[enter]);
+                let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+                if (rail_direction[state][enter].ascending == Direction.Up)
+                    end = VectorAdd(end, { x: 0, y: 1, z: 0 });
+                if (rail_direction[state][enter].ascending == Direction.Down)
+                    start = VectorAdd(start, { x: 0, y: 1, z: 0 });
+                location = correctToRail(start, end, location);
+                // km/h to m/ms
+                const speed = this.getSpeed() / 3600;
+                const distance = Math.abs(speed) * time;
+                this.lastTickTime = current_time;
+                //Ignore gravity
+                if (speed == 0) {
+                    entity.teleport(location);
                     break;
                 }
-            }
-            entity.teleport(location);
-            this.setEnterDirection(PRIVARE_SYMBOL, enter);
-            this.addMileage(distance);
-        } while (false);
+                let norm = getNormalizedVector(start, end, location);
+                let target = distance + norm;
+                while (true) {
+                    if (target >= 1) {
+                        current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
+                        if (typeof current_block == "undefined")
+                            break;
+                        enter = direction_reverse[rail_direction[state][enter].direction];
+                        block_location = current_block.location;
+                        state = current_block.permutation.getState('rail_direction');
+                        if (typeof state != "number")
+                            break;
+                        start = VectorAdd(block_location, edge[enter]);
+                        end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+                        target--;
+                    }
+                    else {
+                        location = getLerpVector(start, end, target);
+                        break;
+                    }
+                }
+                entity.teleport(location);
+                this.setEnterDirection(PRIVARE_SYMBOL, enter);
+                this.addMileage(distance);
+            } while (false);
+        }
         this.onLoop(this, time);
         system.run(() => this.gameloop());
     }

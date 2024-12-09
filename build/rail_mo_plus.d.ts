@@ -10,6 +10,7 @@ export declare class RailMoPlusEntity {
     lastTickTime: Date;
     entity: Entity;
     connected: RailMoPlusEntity[];
+    control: boolean;
     connect(entity: RailMoPlusEntity[]): void;
     uncouple(offset: number): RailMoPlusEntity;
     onLoop: (entity: RailMoPlusEntity, time: number) => void;
