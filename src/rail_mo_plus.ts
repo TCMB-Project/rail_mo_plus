@@ -1,6 +1,7 @@
 import { Entity, Block, system, Vector2, Vector3, world, Direction } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
 import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
+import { traceRail } from "./traceRail";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 
@@ -53,7 +54,7 @@ export class RailMoPlusEntity{
 
     return uncoupled_front;
   }
-  onLoop: (entity: RailMoPlusEntity, time: number)=>void = function(_){};
+  onLoop: (entity: RailMoPlusEntity, tickCycle: number)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
@@ -152,65 +153,35 @@ export class RailMoPlusEntity{
     }
     let last_time = this.lastTickTime;
     let current_time = new Date();
-    let time = current_time.getTime() - last_time.getTime();
+    let tickCycle = current_time.getTime() - last_time.getTime();
     if(this.control){
       do{
         let entity = this.entity;
         if(!entity.isValid()) break;
   
         let location: Vector3 = entity.location;
-        let block_location = toBlockLocation(location)
-        let current_block: Block = entity.dimension.getBlock(block_location);
-        if(typeof current_block == "undefined") break;
-        let state = current_block.permutation.getState('rail_direction');
-        if(typeof state != "number") break;
-  
-        let enter = this.getEnterDirection();
-        let start = VectorAdd(block_location, edge[enter]);
-        let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
-        if(rail_direction[state][enter].ascending == Direction.Up) end = VectorAdd(end, {x: 0, y: 1, z: 0});
-        if(rail_direction[state][enter].ascending == Direction.Down) start = VectorAdd(start, {x: 0, y: 1, z: 0});
-        location = correctToRail(start, end, location);
   
         // km/h to m/ms
         const speed = this.getSpeed() / 3600;
   
-        const distance = Math.abs(speed) * time;
-  
+        const distance = Math.abs(speed) * tickCycle;
+
         this.lastTickTime = current_time;
-  
+
         //Ignore gravity
         if(speed == 0){
           entity.teleport(location);
           break;
         }
   
-        let norm = getNormalizedVector(start, end, location);
-        let target = distance + norm;
-        
-        while(true){
-          if(target >= 1){
-            current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
-            if(typeof current_block == "undefined") break;
-            enter = direction_reverse[rail_direction[state][enter].direction];
-            block_location = current_block.location;
-            state = current_block.permutation.getState('rail_direction');
-            if(typeof state != "number") break;
-  
-            start = VectorAdd(block_location, edge[enter]);
-            end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
-            target--;
-          }else{
-            location = getLerpVector(start, end, target);
-            break;
-          }
-        }
-        entity.teleport(location);
-        this.setEnterDirection(PRIVARE_SYMBOL, enter);
+        let traceResult = traceRail(location, entity.dimension, distance, this.getEnterDirection());
+
+        entity.teleport(traceResult.location);
+        this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
         this.addMileage(distance);
       }while(false);
     }
-    this.onLoop(this, time);
+    this.onLoop(this, tickCycle);
     system.run(()=>this.gameloop());
   }
 }

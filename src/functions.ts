@@ -1,22 +1,26 @@
 import { Vector3, Block, Vector2, Dimension, Direction } from "@minecraft/server";
 
-export const direction = {
+export const direction: Record<number, Direction> = {
   "-180": <Direction>"North",
   "0": <Direction>"South",
   "90": <Direction>"West",
   "-90": <Direction>"East"
 }
-export const edge = {
+export const edge: Record<Direction, Vector3> = {
   "North": <Vector3>{x: 0.5, y: 0, z: 0},
   "South": <Vector3>{x: 0.5, y: 0, z: 1},
   "West": <Vector3>{x: 0, y: 0, z: 0.5},
-  "East": <Vector3>{x: 1, y: 0, z: 0.5}
+  "East": <Vector3>{x: 1, y: 0, z: 0.5},
+  "Up": undefined,
+  "Down": undefined
 }
-export const direction_reverse = {
+export const direction_reverse: Record<Direction, Direction> = {
   "North": <Direction>"South",
   "South": <Direction>"North",
   "West": <Direction>"East",
-  "East": <Direction>"West"
+  "East": <Direction>"West",
+  "Up": undefined,
+  "Down": undefined
 }
 
 /**

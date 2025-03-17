@@ -13,7 +13,7 @@ export declare class RailMoPlusEntity {
     control: boolean;
     connect(entity: RailMoPlusEntity[]): void;
     uncouple(offset: number): RailMoPlusEntity;
-    onLoop: (entity: RailMoPlusEntity, time: number) => void;
+    onLoop: (entity: RailMoPlusEntity, tickCycle: number) => void;
     /**
      * Set the speed.
      * @param speed Speed (km/h) to be set
