@@ -1,4 +1,4 @@
-import { Entity, Direction } from "@minecraft/server";
+import { Entity, Vector3, Direction } from "@minecraft/server";
 export declare class RailMoPlusEntity {
     private static instances;
     /**
@@ -13,7 +13,7 @@ export declare class RailMoPlusEntity {
     control: boolean;
     connect(entity: RailMoPlusEntity[]): void;
     uncouple(offset: number): RailMoPlusEntity;
-    onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation: any) => void;
+    onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation: Vector3) => void;
     /**
      * Set the speed.
      * @param speed Speed (km/h) to be set

@@ -54,7 +54,7 @@ export class RailMoPlusEntity{
 
     return uncoupled_front;
   }
-  onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation)=>void = function(_){};
+  onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation: Vector3)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
