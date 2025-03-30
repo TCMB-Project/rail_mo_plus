@@ -139,6 +139,7 @@ export class RailMoPlusEntity {
         let last_time = this.lastTickTime;
         let current_time = new Date();
         let tickCycle = current_time.getTime() - last_time.getTime();
+        let afterLocation = this.entity.location;
         if (this.control) {
             do {
                 let entity = this.entity;
@@ -158,9 +159,10 @@ export class RailMoPlusEntity {
                 entity.teleport(traceResult.location);
                 this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
                 this.addMileage(distance);
+                afterLocation = traceResult.location;
             } while (false);
         }
-        this.onLoop(this, tickCycle);
+        this.onLoop(this, tickCycle, afterLocation);
         system.run(() => this.gameloop());
     }
 }
