@@ -10,7 +10,7 @@ export class RailMoPlusEntity{
   /**
    * Create an instance for control and start control by RailMoPlus.
    * @param entity controlling entity
-   * @param initRotate Rotate the entity. (Equivalent to setting runtime_identifier to minecraft:minecart)
+   * @param initRotate Rotate the entity on initialisation. (Equivalent to setting runtime_identifier to minecraft:minecart)
    */
   constructor(entity: Entity, initRotate: boolean = false/*, rotate: boolean*/){
     if(RailMoPlusEntity.instances.has(entity.id)) {
@@ -54,7 +54,7 @@ export class RailMoPlusEntity{
 
     return uncoupled_front;
   }
-  onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation: Vector3)=>void = function(_){};
+  onLoop: (entity: RailMoPlusEntity, tickCycle: number)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
@@ -154,36 +154,38 @@ export class RailMoPlusEntity{
     let last_time = this.lastTickTime;
     let current_time = new Date();
     let tickCycle = current_time.getTime() - last_time.getTime();
-    let afterLocation: Vector3 =  this.entity.location;
     if(this.control){
-      do{
-        let entity = this.entity;
-        if(!entity.isValid()) break;
-  
-        let location: Vector3 = entity.location;
-  
-        // km/h to m/ms
-        const speed = this.getSpeed() / 3600;
-  
-        const distance = Math.abs(speed) * tickCycle;
+      try{
+        do{
+          let entity = this.entity;
+          if(!entity.isValid()) break;
+    
+          let location: Vector3 = entity.location;
+    
+          // km/h to m/ms
+          const speed = this.getSpeed() / 3600;
+    
+          const distance = Math.abs(speed) * tickCycle;
 
-        this.lastTickTime = current_time;
+          this.lastTickTime = current_time;
 
-        //Ignore gravity
-        if(speed == 0){
-          entity.teleport(location);
-          break;
-        }
-  
-        let traceResult = traceRail(location, entity.dimension, distance, this.getEnterDirection());
+          //Ignore gravity
+          if(speed == 0){
+            entity.teleport(location);
+            break;
+          }
+    
+          let traceResult = traceRail(location, entity.dimension, distance, this.getEnterDirection());
 
-        entity.teleport(traceResult.location);
-        this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
-        this.addMileage(distance);
-        afterLocation = traceResult.location;
-      }while(false);
+          entity.teleport(traceResult.location);
+          this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
+          this.addMileage(distance);
+        }while(false);
+      }catch(e){
+        console.error(e);
+      }
     }
-    this.onLoop(this, tickCycle, afterLocation);
+    this.onLoop(this, tickCycle);
     system.run(()=>this.gameloop());
   }
 }

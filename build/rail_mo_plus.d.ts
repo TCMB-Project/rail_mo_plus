@@ -1,10 +1,10 @@
-import { Entity, Vector3, Direction } from "@minecraft/server";
+import { Entity, Direction } from "@minecraft/server";
 export declare class RailMoPlusEntity {
     private static instances;
     /**
      * Create an instance for control and start control by RailMoPlus.
      * @param entity controlling entity
-     * @param initRotate Rotate the entity. (Equivalent to setting runtime_identifier to minecraft:minecart)
+     * @param initRotate Rotate the entity on initialisation. (Equivalent to setting runtime_identifier to minecraft:minecart)
      */
     constructor(entity: Entity, initRotate?: boolean);
     lastTickTime: Date;
@@ -13,7 +13,7 @@ export declare class RailMoPlusEntity {
     control: boolean;
     connect(entity: RailMoPlusEntity[]): void;
     uncouple(offset: number): RailMoPlusEntity;
-    onLoop: (entity: RailMoPlusEntity, tickCycle: number, afterLocation: Vector3) => void;
+    onLoop: (entity: RailMoPlusEntity, tickCycle: number) => void;
     /**
      * Set the speed.
      * @param speed Speed (km/h) to be set

@@ -23,19 +23,21 @@ export function traceRail(location, dimension, distance, enter) {
     //trace rail
     while (true) {
         if (target >= 1) {
+            //move to next block
             current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
             if (typeof current_block == "undefined")
-                break;
+                return { location: end, enter: enter };
             enter = direction_reverse[rail_direction[state][enter].direction];
             block_location = current_block.location;
             state = current_block.permutation.getState('rail_direction');
             if (typeof state != "number")
-                break;
+                return { location: end, enter: enter };
             start = VectorAdd(block_location, edge[enter]);
             end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
             target--;
         }
         else {
+            //get location
             location = getLerpVector(start, end, target);
             return { location: location, enter: enter };
         }
