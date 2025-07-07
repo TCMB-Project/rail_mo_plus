@@ -1,4 +1,4 @@
-import { Vector3, Block, Vector2, Dimension, Direction } from "@minecraft/server";
+import { Vector3, Block, Vector2, Direction } from "@minecraft/server";
 
 export const direction: Record<number, Direction> = {
   "-180": <Direction>"North",

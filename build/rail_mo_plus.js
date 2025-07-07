@@ -127,8 +127,6 @@ export class RailMoPlusEntity {
         RailMoPlusEntity.instances.delete(this.entity.id);
         if (this.entity.isValid()) {
             this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
-            this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', undefined);
-            this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
             this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
         }
     }

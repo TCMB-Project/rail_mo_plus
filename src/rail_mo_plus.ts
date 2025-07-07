@@ -1,6 +1,6 @@
-import { Entity, Block, system, Vector3, world, Direction } from "@minecraft/server"
+import { Entity, Block, system, Vector3, Direction } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
-import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
+import { toBlockLocation, direction_reverse } from "./functions";
 import { traceRail } from "./traceRail";
 import { VirtualEntity } from "./util";
 
@@ -141,8 +141,6 @@ export class RailMoPlusEntity{
     RailMoPlusEntity.instances.delete(this.entity.id);
     if(this.entity.isValid()){
       this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
-      this.entity.setDynamicProperty('rail_mo_plus:vrotation_x', undefined);
-      this.entity.setDynamicProperty('rail_mo_plus:vtotation_y', undefined);
       this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
     }
   }
