@@ -1,7 +1,8 @@
-import { Entity, Block, system, Vector2, Vector3, world, Direction } from "@minecraft/server"
+import { Entity, Block, system, Vector3, world, Direction } from "@minecraft/server"
 import { rail_direction } from "./rail_direction"
 import { correctToRail, getNormalizedVector, getLerpVector, toBlockLocation, direction, edge, direction_reverse, nextBlock, VectorAdd } from "./functions";
 import { traceRail } from "./traceRail";
+import { VirtualEntity } from "./util";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 
@@ -12,7 +13,7 @@ export class RailMoPlusEntity{
    * @param entity controlling entity
    * @param initRotate Rotate the entity on initialisation. (Equivalent to setting runtime_identifier to minecraft:minecart)
    */
-  constructor(entity: Entity, initRotate: boolean = false/*, rotate: boolean*/){
+  constructor(entity: Entity | VirtualEntity, initRotate: boolean = false/*, rotate: boolean*/){
     if(RailMoPlusEntity.instances.has(entity.id)) {
       return RailMoPlusEntity.instances.get(entity.id)!;
     }
@@ -34,7 +35,7 @@ export class RailMoPlusEntity{
     system.run(()=>this.gameloop());
   }
   lastTickTime: Date;
-  entity: Entity;
+  entity: Entity | VirtualEntity;
   connected: RailMoPlusEntity[] = [];
   control: boolean = true;
   connect(entity: RailMoPlusEntity[]): void{

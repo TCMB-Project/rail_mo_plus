@@ -1,4 +1,5 @@
 import { Entity, Direction } from "@minecraft/server";
+import { VirtualEntity } from "./util";
 export declare class RailMoPlusEntity {
     private static instances;
     /**
@@ -6,9 +7,9 @@ export declare class RailMoPlusEntity {
      * @param entity controlling entity
      * @param initRotate Rotate the entity on initialisation. (Equivalent to setting runtime_identifier to minecraft:minecart)
      */
-    constructor(entity: Entity, initRotate?: boolean);
+    constructor(entity: Entity | VirtualEntity, initRotate?: boolean);
     lastTickTime: Date;
-    entity: Entity;
+    entity: Entity | VirtualEntity;
     connected: RailMoPlusEntity[];
     control: boolean;
     connect(entity: RailMoPlusEntity[]): void;
