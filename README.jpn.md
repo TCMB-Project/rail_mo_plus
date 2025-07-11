@@ -1,5 +1,5 @@
 # RailMoPlus
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TCMB-Project/rail_mo_plus)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TCMB-Project/rail_mo_plus)  
 高速走行に対応したrail_movement
 
 # 使い方
