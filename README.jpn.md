@@ -16,7 +16,7 @@ import { RailMoPlusEntity } from "./build/rail_mo_plus.js";
 ```
 TypeScriptの場合
 ```typescript
-import { RailMoPlusEntity } from "./build/rail_mo_plus.ts";
+import { RailMoPlusEntity } from "./src/rail_mo_plus.ts";
 ```
 
 # 使用例
@@ -29,6 +29,7 @@ const entities = new Map();
 
 world.afterEvents.entitySpawn.subscribe((e) => {
   const entity = e.entity;
+  if(e.entity.typeId !== "foo:bar") return;
   const railInstance = new RailMoPlusEntity(entity);
   railInstance.setSpeed(10);
   entities.set(entity.id, railInstance);
