@@ -37,13 +37,36 @@ export class RailMoPlusEntity{
   lastTickTime: Date;
   entity: Entity | VirtualEntity;
   connected: RailMoPlusEntity[] = [];
+  /**
+   * Determines whether the entity is controlled by RailMoPlus.
+   * If set to `true`, RailMoPlus will manage the entity's behavior.
+   */
   control: boolean = true;
+  /**
+   * Connects an array of RailMoPlusEntity instances to this entity.
+   * 
+   * This method appends the given entities to the `connected` array of the current instance.
+   * Before connecting, it checks if the entity is valid. If the entity is invalid, an error is thrown.
+   * 
+   * @param entity - Array of RailMoPlusEntity instances to connect.
+   * @throws {Error} If the entity is invalid.
+   */
   connect(entity: RailMoPlusEntity[]): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
-    this.connected.concat(entity);
+    this.connected = this.connected.concat(entity);
   }
+  /**
+   * Uncouples the connected entities starting from the specified offset.
+   * 
+   * This method removes entities from the `connected` array beginning at the given offset,
+   * and returns the first uncoupled entity after reconnecting the remaining uncoupled entities.
+   * 
+   * @param offset - The position in the `connected` array from which to start uncoupling (1-based index).
+   * @returns The first entity that was uncoupled.
+   * @throws {Error} If the entity is invalid.
+   */
   uncouple(offset: number): RailMoPlusEntity{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
