@@ -17,6 +17,7 @@ export class RailMoPlusEntity {
          */
         this.control = true;
         this.onLoop = function (_) { };
+        this.onMoved = function (_) { };
         this.isDestroyed = false;
         if (RailMoPlusEntity.instances.has(entity.id)) {
             return RailMoPlusEntity.instances.get(entity.id);
@@ -209,7 +210,10 @@ export class RailMoPlusEntity {
                         y: location.y,
                         z: location.z
                     };
-                    let traceResult = traceRail(dimensionLocation, distance, this.getEnterDirection());
+                    let traceResult = traceRail(dimensionLocation, distance, this.getEnterDirection(), {
+                        norm: this.norm,
+                        onMoved: this.onMoved
+                    });
                     entity.teleport(traceResult.location);
                     this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
                     this.addMileage(distance);

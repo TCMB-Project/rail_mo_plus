@@ -20,7 +20,7 @@ export function traceRail(dimensionLocation, distance, enter, traceOption) {
     if (railDirection[state][enter].ascending == Direction.Down)
         start = VectorAdd(start, { x: 0, y: 1, z: 0 });
     location = correctToRail(start, end, location);
-    let norm = traceOption?.t || getNormalizedVector(start, end, location);
+    let norm = traceOption?.norm || getNormalizedVector(start, end, location);
     let target = distance + norm;
     //trace rail
     while (true) {
@@ -37,6 +37,12 @@ export function traceRail(dimensionLocation, distance, enter, traceOption) {
             start = VectorAdd(blockLocation, edge[enter]);
             end = VectorAdd(blockLocation, edge[railDirection[state][enter].direction]);
             target--;
+            traceOption?.onMoved?.({
+                dimension: dimension,
+                x: blockLocation.x,
+                y: blockLocation.y,
+                z: blockLocation.z
+            }, enter, target);
         }
         else {
             //get location

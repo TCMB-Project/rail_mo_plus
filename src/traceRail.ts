@@ -1,6 +1,7 @@
-import { Block, Dimension, DimensionLocation, Direction, Vector3 } from "@minecraft/server";
+import { Block, Dimension, DimensionLocation, Direction, Entity, Vector3 } from "@minecraft/server";
 import { correctToRail, directionReverse, edge, getLerpVector, getNormalizedVector, nextBlock, toBlockLocation, VectorAdd } from "./functions";
 import { railDirection } from "./railDirection";
+import { RailMoPlusEntity } from "./rail_mo_plus";
 
 type TraceResult = {
   location: Vector3,
@@ -8,8 +9,8 @@ type TraceResult = {
   norm?: number,
 }
 export interface TraceOption{
-  t: number,
-  onMoved: (location: Vector3, enter: Direction, target: number)=>void
+  norm: number,
+  onMoved?: (location: DimensionLocation, enter: Direction, target: number, entity?: RailMoPlusEntity)=>void
 } 
 
 export function traceRail(dimensionLocation: DimensionLocation ,distance: number, enter: Direction, traceOption?: TraceOption): TraceResult{
@@ -31,7 +32,7 @@ export function traceRail(dimensionLocation: DimensionLocation ,distance: number
 
   location = correctToRail(start, end, location);
 
-  let norm = traceOption?.t || getNormalizedVector(start, end, location);
+  let norm = traceOption?.norm || getNormalizedVector(start, end, location);
   let target = distance + norm;
 
   //trace rail
@@ -48,6 +49,17 @@ export function traceRail(dimensionLocation: DimensionLocation ,distance: number
       start = VectorAdd(blockLocation, edge[enter]);
       end = VectorAdd(blockLocation, edge[railDirection[state][enter].direction]);
       target--;
+
+      traceOption?.onMoved?.(
+        {
+          dimension: dimension,
+          x: blockLocation.x,
+          y: blockLocation.y,
+          z: blockLocation.z
+        },
+        enter,
+        target
+      );
     }else{
       //get location
       location = getLerpVector(start, end, target);

@@ -1,4 +1,4 @@
-import { Entity, Block, system, Vector3, Direction } from "@minecraft/server"
+import { Entity, Block, system, Vector3, Direction, DimensionLocation } from "@minecraft/server"
 import { railDirection } from "./railDirection"
 import { toBlockLocation, directionReverse } from "./functions";
 import { traceRail } from "./traceRail";
@@ -114,6 +114,7 @@ export class RailMoPlusEntity{
     return formation;
   }
   onLoop: (entity: RailMoPlusEntity, tickCycle: number)=>void = function(_){};
+  onMoved: (location: DimensionLocation, enter: Direction, target: number, entity?: RailMoPlusEntity)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set
@@ -237,7 +238,10 @@ export class RailMoPlusEntity{
             y: location.y,
             z: location.z
           }
-          let traceResult = traceRail(dimensionLocation, distance, this.getEnterDirection());
+          let traceResult = traceRail(dimensionLocation, distance, this.getEnterDirection(), {
+            norm: this.norm,
+            onMoved: this.onMoved
+          });
 
           entity.teleport(traceResult.location);
           this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);

@@ -1,4 +1,4 @@
-import { Entity, Direction } from "@minecraft/server";
+import { Entity, Direction, DimensionLocation } from "@minecraft/server";
 import { VirtualEntity } from "./util";
 export declare class RailMoPlusEntity {
     private static instances;
@@ -48,6 +48,7 @@ export declare class RailMoPlusEntity {
      */
     getFormationArray(): RailMoPlusEntity[];
     onLoop: (entity: RailMoPlusEntity, tickCycle: number) => void;
+    onMoved: (location: DimensionLocation, enter: Direction, target: number, entity?: RailMoPlusEntity) => void;
     /**
      * Set the speed.
      * @param speed Speed (km/h) to be set
