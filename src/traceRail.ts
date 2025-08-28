@@ -1,49 +1,57 @@
-import { Block, Dimension, Direction, Vector3 } from "@minecraft/server";
-import { correctToRail, direction_reverse, edge, getLerpVector, getNormalizedVector, nextBlock, toBlockLocation, VectorAdd } from "./functions";
-import { rail_direction } from "./rail_direction";
+import { Block, Dimension, DimensionLocation, Direction, Vector3 } from "@minecraft/server";
+import { correctToRail, directionReverse, edge, getLerpVector, getNormalizedVector, nextBlock, toBlockLocation, VectorAdd } from "./functions";
+import { railDirection } from "./railDirection";
 
 type TraceResult = {
   location: Vector3,
-  enter: Direction
+  enter: Direction,
+  norm?: number,
 }
+export interface TraceOption{
+  t: number,
+  onMoved: (location: Vector3, enter: Direction, target: number)=>void
+} 
 
-export function traceRail(location: Vector3 ,dimension: Dimension ,distance: number, enter: Direction): TraceResult{
+export function traceRail(dimensionLocation: DimensionLocation ,distance: number, enter: Direction, traceOption?: TraceOption): TraceResult{
+  let dimension = dimensionLocation.dimension;
+  let location: Vector3 = {x: dimensionLocation.x, y: dimensionLocation.y, z: dimensionLocation.z}
+
   //get block location
-  let block_location = toBlockLocation(location)
-  let current_block: Block = dimension.getBlock(block_location);
-  if(typeof current_block == "undefined") return {location: location, enter: enter};
-  let state = current_block.permutation.getState('rail_direction');
+  let blockLocation = toBlockLocation(location);
+  let currentBlock: Block = dimension.getBlock(blockLocation);
+  if(typeof currentBlock == "undefined") return {location: location, enter: enter};
+  let state = currentBlock.permutation.getState('rail_direction');
   if(typeof state != "number") return {location: location, enter: enter};
 
   //get start and end location
-  let start = VectorAdd(block_location, edge[enter]);
-  let end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
-  if(rail_direction[state][enter].ascending == Direction.Up) end = VectorAdd(end, {x: 0, y: 1, z: 0});
-  if(rail_direction[state][enter].ascending == Direction.Down) start = VectorAdd(start, {x: 0, y: 1, z: 0});
+  let start = VectorAdd(blockLocation, edge[enter]);
+  let end = VectorAdd(blockLocation, edge[railDirection[state][enter].direction]);
+  if(railDirection[state][enter].ascending == Direction.Up) end = VectorAdd(end, {x: 0, y: 1, z: 0});
+  if(railDirection[state][enter].ascending == Direction.Down) start = VectorAdd(start, {x: 0, y: 1, z: 0});
 
   location = correctToRail(start, end, location);
 
-  let norm = getNormalizedVector(start, end, location);
+  let norm = traceOption?.t || getNormalizedVector(start, end, location);
   let target = distance + norm;
 
   //trace rail
   while(true){
     if(target >= 1){
       //move to next block
-      current_block = nextBlock(current_block, rail_direction[state][enter].direction, rail_direction[state][enter].ascending);
-      if(typeof current_block == "undefined") return {location: end, enter: enter};
-      enter = direction_reverse[rail_direction[state][enter].direction];
-      block_location = current_block.location;
-      state = current_block.permutation.getState('rail_direction');
+      currentBlock = nextBlock(currentBlock, railDirection[state][enter].direction, railDirection[state][enter].ascending);
+      if(typeof currentBlock == "undefined") return {location: end, enter: enter};
+      enter = directionReverse[railDirection[state][enter].direction];
+      blockLocation = currentBlock.location;
+      state = currentBlock.permutation.getState('rail_direction');
       if(typeof state != "number") return {location: end, enter: enter};
 
-      start = VectorAdd(block_location, edge[enter]);
-      end = VectorAdd(block_location, edge[rail_direction[state][enter].direction]);
+      start = VectorAdd(blockLocation, edge[enter]);
+      end = VectorAdd(blockLocation, edge[railDirection[state][enter].direction]);
       target--;
     }else{
       //get location
       location = getLerpVector(start, end, target);
-      return {location: location, enter: enter};
+      return {location: location, enter: enter, norm: target};
     }
   }
 }

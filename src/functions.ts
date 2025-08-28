@@ -14,7 +14,7 @@ export const edge: Record<Direction, Vector3> = {
   "Up": undefined,
   "Down": undefined
 }
-export const direction_reverse: Record<Direction, Direction> = {
+export const directionReverse: Record<Direction, Direction> = {
   "North": <Direction>"South",
   "South": <Direction>"North",
   "West": <Direction>"East",

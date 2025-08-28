@@ -12,7 +12,7 @@ export const edge = {
     "Up": undefined,
     "Down": undefined
 };
-export const direction_reverse = {
+export const directionReverse = {
     "North": "South",
     "South": "North",
     "West": "East",

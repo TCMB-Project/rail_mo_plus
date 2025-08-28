@@ -7,7 +7,7 @@ type ExitDirection = {
   ascending?: Direction
 }
 
-export const rail_direction:{
+export const railDirection:{
   East: ExitDirection
   West: ExitDirection
   North: ExitDirection

@@ -9,13 +9,17 @@ export declare class RailMoPlusEntity {
      */
     constructor(entity: Entity | VirtualEntity, initRotate?: boolean);
     lastTickTime: Date;
-    entity: Entity | VirtualEntity;
-    connected: RailMoPlusEntity[];
+    readonly entity: Entity | VirtualEntity;
+    readonly connected: RailMoPlusEntity[];
     /**
      * Determines whether the entity is controlled by RailMoPlus.
      * If set to `true`, RailMoPlus will manage the entity's behavior.
      */
     control: boolean;
+    /**
+     * ブロック始端を0、終端を1とした時の現在位置
+     */
+    private norm;
     /**
      * Connects an array of RailMoPlusEntity instances to this entity.
      *

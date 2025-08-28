@@ -1,7 +1,7 @@
 import { Vector3, Block, Vector2, Direction } from "@minecraft/server";
 export declare const direction: Record<number, Direction>;
 export declare const edge: Record<Direction, Vector3>;
-export declare const direction_reverse: Record<Direction, Direction>;
+export declare const directionReverse: Record<Direction, Direction>;
 /**
  * Function to return a normalized value
  * @param {Vector3} start - Starting coordinates

@@ -1,7 +1,12 @@
-import { Dimension, Direction, Vector3 } from "@minecraft/server";
+import { DimensionLocation, Direction, Vector3 } from "@minecraft/server";
 type TraceResult = {
     location: Vector3;
     enter: Direction;
+    norm?: number;
 };
-export declare function traceRail(location: Vector3, dimension: Dimension, distance: number, enter: Direction): TraceResult;
+export interface TraceOption {
+    t: number;
+    onMoved: (location: Vector3, enter: Direction, target: number) => void;
+}
+export declare function traceRail(dimensionLocation: DimensionLocation, distance: number, enter: Direction, traceOption?: TraceOption): TraceResult;
 export {};
