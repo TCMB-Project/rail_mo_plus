@@ -113,8 +113,21 @@ export class RailMoPlusEntity{
     formation.push.apply(this.connected);
     return formation;
   }
+  /**
+   * Callback invoked on every game loop tick for this entity.
+   *
+   * @param entity - The RailMoPlusEntity instance.
+   * @param tickCycle - The elapsed time in milliseconds since the last tick (1/TPS).
+   */
   onLoop: (entity: RailMoPlusEntity, tickCycle: number)=>void = function(_){};
-  onMoved: (location: DimensionLocation, enter: Direction, target: number, entity?: RailMoPlusEntity)=>void = function(_){};
+  /**
+   * Callback invoked when an entity moves across a block.
+   *
+   * @param location - The current location of the entity within the dimension.
+   * @param enter - The direction from which the entity entered the block.
+   * @param residueDistance - 説明が難しい助けて ソースコード見ればわかるはず
+   */
+  onMoved: (location: DimensionLocation, enter: Direction, residueDistance: number)=>void = function(_){};
   /**
    * Set the speed.
    * @param speed Speed (km/h) to be set

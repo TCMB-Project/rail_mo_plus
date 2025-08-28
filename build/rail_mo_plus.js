@@ -16,7 +16,20 @@ export class RailMoPlusEntity {
          * If set to `true`, RailMoPlus will manage the entity's behavior.
          */
         this.control = true;
+        /**
+         * Callback invoked on every game loop tick for this entity.
+         *
+         * @param entity - The RailMoPlusEntity instance.
+         * @param tickCycle - The elapsed time in milliseconds since the last tick (1/TPS).
+         */
         this.onLoop = function (_) { };
+        /**
+         * Callback invoked when an entity moves across a block.
+         *
+         * @param location - The current location of the entity within the dimension.
+         * @param enter - The direction from which the entity entered the block.
+         * @param residueDistance - 説明が難しい助けて ソースコード見ればわかるはず
+         */
         this.onMoved = function (_) { };
         this.isDestroyed = false;
         if (RailMoPlusEntity.instances.has(entity.id)) {
