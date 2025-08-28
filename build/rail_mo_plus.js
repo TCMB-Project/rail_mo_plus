@@ -45,11 +45,29 @@ export class RailMoPlusEntity {
      * @param entity - Array of RailMoPlusEntity instances to connect.
      * @throws {Error} If the entity is invalid.
      */
-    connect(entity) {
+    connect(entities) {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
         }
-        this.connected = this.connected.concat(entity);
+        //自分自身を連結しようとしてないか
+        if (entities.includes(this))
+            throw new Error('Cannot connect entity to itself.');
+        let formationTemp;
+        entities.forEach((entity) => {
+            //すでに連結されてるエンティティはないか
+            if (this.connected.includes(entity))
+                throw new Error('This entity is already connected.');
+            //無効なエンティティはないか
+            if (!entity.isValid()) {
+                throw new Error('The entity to connect is invalid.');
+            }
+            //編成の再構成
+            if (entity.connected.length > 0) {
+                formationTemp.push.apply(entity.getFormationArray());
+                entity.uncouple(1);
+            }
+        });
+        this.connected.push.apply(formationTemp);
     }
     /**
      * Uncouples the connected entities starting from the specified offset.
@@ -66,9 +84,19 @@ export class RailMoPlusEntity {
             throw new Error('The entity is invalid.');
         }
         let uncoupled = this.connected.splice(offset - 1);
-        let uncoupled_front = uncoupled.shift();
-        uncoupled_front.connect.apply(uncoupled);
-        return uncoupled_front;
+        let uncoupledFront = uncoupled.shift();
+        uncoupledFront.connect(uncoupled);
+        return uncoupledFront;
+    }
+    /**
+     * Returns an array containing this entity and all connected entities.
+     *
+     * @returns {RailMoPlusEntity[]} An array of `RailMoPlusEntity` objects representing the formation.
+     */
+    getFormationArray() {
+        let formation = [this];
+        formation.push.apply(this.connected);
+        return formation;
     }
     /**
      * Set the speed.
@@ -138,7 +166,7 @@ export class RailMoPlusEntity {
             throw new Error('The entity is invalid.');
         }
         let mileage = this.getMileage();
-        mileage += distance;
+        mileage += Math.abs(distance);
         this.setMileage(mileage);
         return mileage;
     }

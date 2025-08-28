@@ -25,7 +25,7 @@ export declare class RailMoPlusEntity {
      * @param entity - Array of RailMoPlusEntity instances to connect.
      * @throws {Error} If the entity is invalid.
      */
-    connect(entity: RailMoPlusEntity[]): void;
+    connect(entities: RailMoPlusEntity[]): void;
     /**
      * Uncouples the connected entities starting from the specified offset.
      *
@@ -37,6 +37,12 @@ export declare class RailMoPlusEntity {
      * @throws {Error} If the entity is invalid.
      */
     uncouple(offset: number): RailMoPlusEntity;
+    /**
+     * Returns an array containing this entity and all connected entities.
+     *
+     * @returns {RailMoPlusEntity[]} An array of `RailMoPlusEntity` objects representing the formation.
+     */
+    getFormationArray(): RailMoPlusEntity[];
     onLoop: (entity: RailMoPlusEntity, tickCycle: number) => void;
     /**
      * Set the speed.
@@ -45,7 +51,7 @@ export declare class RailMoPlusEntity {
     setSpeed(speed: number): void;
     getSpeed(): number;
     getEnterDirection(): Direction;
-    setEnterDirection(symbol: symbol, direction: Direction): void;
+    private setEnterDirection;
     getMileage(): number;
     setMileage(mileage: number): void;
     addMileage(distance: number): number;

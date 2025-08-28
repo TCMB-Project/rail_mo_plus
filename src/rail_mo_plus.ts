@@ -51,11 +51,33 @@ export class RailMoPlusEntity{
    * @param entity - Array of RailMoPlusEntity instances to connect.
    * @throws {Error} If the entity is invalid.
    */
-  connect(entity: RailMoPlusEntity[]): void{
+  connect(entities: RailMoPlusEntity[]): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
-    this.connected = this.connected.concat(entity);
+    //自分自身を連結しようとしてないか
+    if(entities.includes(this))
+      throw new Error('Cannot connect entity to itself.');
+
+    let formationTemp: RailMoPlusEntity[];
+
+    entities.forEach((entity)=>{
+      //すでに連結されてるエンティティはないか
+      if(this.connected.includes(entity))
+        throw new Error('This entity is already connected.');
+      //無効なエンティティはないか
+      if(!entity.isValid()){
+        throw new Error('The entity to connect is invalid.');
+      }
+
+      //編成の再構成
+      if(entity.connected.length > 0){
+        formationTemp.push.apply(entity.getFormationArray());
+        entity.uncouple(1);
+      }
+    });
+
+    this.connected.push.apply(formationTemp);
   }
   /**
    * Uncouples the connected entities starting from the specified offset.
@@ -73,10 +95,20 @@ export class RailMoPlusEntity{
     }
 
     let uncoupled = this.connected.splice(offset - 1);
-    let uncoupled_front = uncoupled.shift();
-    uncoupled_front.connect.apply(uncoupled);
+    let uncoupledFront = uncoupled.shift();
+    uncoupledFront.connect(uncoupled);
 
-    return uncoupled_front;
+    return uncoupledFront;
+  }
+  /**
+   * Returns an array containing this entity and all connected entities.
+   *
+   * @returns {RailMoPlusEntity[]} An array of `RailMoPlusEntity` objects representing the formation.
+   */
+  getFormationArray(): RailMoPlusEntity[]{
+    let formation: RailMoPlusEntity[] = [this];
+    formation.push.apply(this.connected);
+    return formation;
   }
   onLoop: (entity: RailMoPlusEntity, tickCycle: number)=>void = function(_){};
   /**
@@ -122,7 +154,7 @@ export class RailMoPlusEntity{
     }
     return <Direction>direction_dp;
   }
-  setEnterDirection(symbol: symbol, direction: Direction): void{
+  private setEnterDirection(symbol: symbol, direction: Direction): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
@@ -152,7 +184,7 @@ export class RailMoPlusEntity{
     }
 
     let mileage = this.getMileage();
-    mileage += distance;
+    mileage += Math.abs(distance);
     this.setMileage(mileage);
     return mileage;
   }
