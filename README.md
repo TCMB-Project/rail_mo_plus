@@ -13,6 +13,11 @@ You can use a submodule to keep up with updates.
 ```shell
 git submodule add https://github.com/TCMB-Project/rail_mo_plus.git
 ```
+If you are using @minecraft/server 1.19.0 or earlier, please use the v1 branch.
+```shell
+cd rail_mo_plus
+git checkout v1
+```
 ## 2. Import
 For JavaScript:
 ```javascript
