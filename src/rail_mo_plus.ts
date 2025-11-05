@@ -206,12 +206,12 @@ export class RailMoPlusEntity{
     return mileage;
   }
   isValid(): boolean{
-    return this.entity.isValid() && !this.isDestroyed;
+    return this.entity.isValid && !this.isDestroyed;
   }
   destroy(): void{
     this.isDestroyed = true;
     RailMoPlusEntity.instances.delete(this.entity.id);
-    if(this.entity.isValid()){
+    if(this.entity.isValid){
       this.entity.setDynamicProperty('rail_mo_plus:enter_direction', undefined);
       this.entity.setDynamicProperty('rail_mo_plus:speed', undefined);
     }
@@ -230,7 +230,7 @@ export class RailMoPlusEntity{
       try{
         do{
           let entity = this.entity;
-          if(!entity.isValid()) break;
+          if(!entity.isValid) break;
     
           let location: Vector3 = entity.location;
     

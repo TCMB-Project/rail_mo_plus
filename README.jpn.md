@@ -9,6 +9,11 @@
 ```shell
 git submodule add https://github.com/TCMB-Project/rail_mo_plus.git
 ```
+@minecraft/server 1.19.0以前を使用する場合は、v1ブランチを使用してください。  
+```shell
+cd rail_mo_plus
+git checkout v1
+```
 ## 2. インポート
 JavaScriptの場合
 ```javascript
