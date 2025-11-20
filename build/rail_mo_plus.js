@@ -124,6 +124,7 @@ export class RailMoPlusEntity {
         if (reverse != speed < 0)
             this.setEnterDirection(PRIVARE_SYMBOL, directionReverse[this.getEnterDirection()]);
         this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
+        this.norm = undefined;
         for (let entity of this.connected) {
             entity.setSpeed(speed);
         }
