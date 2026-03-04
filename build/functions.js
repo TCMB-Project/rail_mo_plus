@@ -150,4 +150,8 @@ export function nextBlock(block, direction, ascending) {
     }
     return after_block;
 }
+export function updateSpeedDP(railMoPlusEntity) {
+    const kmPerHour = railMoPlusEntity.entity.getDynamicProperty('rail_mo_plus:speed');
+    railMoPlusEntity.setSpeed(kmPerHour, 0 /* SpeedUnit.KM_PER_HOUR */);
+}
 //# sourceMappingURL=functions.js.map

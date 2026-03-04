@@ -2,6 +2,7 @@ import { system } from "@minecraft/server";
 import { railDirection } from "./railDirection";
 import { toBlockLocation, directionReverse } from "./functions";
 import { traceRail } from "./traceRail";
+export { updateSpeedDP } from "./functions";
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 export class RailMoPlusEntity {
     /**
@@ -39,6 +40,7 @@ export class RailMoPlusEntity {
         //this.rotate = rotate;
         if (!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')) {
             entity.setDynamicProperty('rail_mo_plus:speed', 0);
+            entity.setDynamicProperty('rail_mo_plus:acceleration', 0);
             this.setMileage(0);
             this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
         }
@@ -98,8 +100,11 @@ export class RailMoPlusEntity {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
         }
-        let uncoupled = this.connected.splice(offset - 1);
-        let uncoupledFront = uncoupled.shift();
+        if (offset <= 0 || offset > this.connected.length) {
+            throw new Error(`Invalid offset: ${offset}. Must be between 1 and ${this.connected.length}.`);
+        }
+        const uncoupled = this.connected.splice(offset - 1);
+        const uncoupledFront = uncoupled.shift(); // We know it's not undefined due to the check above
         uncoupledFront.connect(uncoupled);
         return uncoupledFront;
     }
@@ -136,7 +141,7 @@ export class RailMoPlusEntity {
         this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
         let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
         if (reverse != speed < 0)
-            this.setEnterDirection(PRIVARE_SYMBOL, directionReverse[this.getEnterDirection()]);
+            this.setEnterDirection(directionReverse[this.getEnterDirection()]);
         this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
         this.norm = undefined;
         for (let entity of this.connected) {
@@ -166,6 +171,41 @@ export class RailMoPlusEntity {
         }
         return speed;
     }
+    setAcceleration(acceleration, unit = 0 /* AccelerationUnit.KM_PER_HOUR_PER_SECOND */) {
+        if (!this.isValid()) {
+            throw new Error('The entity is invalid.');
+        }
+        //m/ms^2に変換
+        switch (unit) {
+            case 0 /* AccelerationUnit.KM_PER_HOUR_PER_SECOND */:
+                acceleration *= 5 / 18;
+                break;
+            case 1 /* AccelerationUnit.M_PER_SECOND_PER_SECOND */:
+                acceleration /= 1000000;
+                break;
+            case 2 /* AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND */:
+                break;
+        }
+        this.entity.setDynamicProperty('rail_mo_plus:acceleration', acceleration);
+    }
+    getAcceleration(unit = 0 /* AccelerationUnit.KM_PER_HOUR_PER_SECOND */) {
+        if (!this.isValid()) {
+            throw new Error('The entity is invalid.');
+        }
+        let acceleration = this.entity.getDynamicProperty('rail_mo_plus:acceleration');
+        //m/ms^2からの変換
+        switch (unit) {
+            case 0 /* AccelerationUnit.KM_PER_HOUR_PER_SECOND */:
+                acceleration *= 18 / 5;
+                break;
+            case 1 /* AccelerationUnit.M_PER_SECOND_PER_SECOND */:
+                acceleration *= 1000000;
+                break;
+            case 2 /* AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND */:
+                break;
+        }
+        return acceleration;
+    }
     getEnterDirection() {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
@@ -182,12 +222,13 @@ export class RailMoPlusEntity {
         }
         return directionDP;
     }
-    setEnterDirection(symbol, direction) {
+    /**
+     * Internal use only
+     */
+    setEnterDirection(direction) {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
         }
-        if (symbol != PRIVARE_SYMBOL)
-            throw Error('Use from outside the module is not allowed.');
         this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
     }
     getMileage() {
@@ -241,7 +282,9 @@ export class RailMoPlusEntity {
                         break;
                     let location = entity.location;
                     const speed = this.getSpeed(2 /* SpeedUnit.M_PER_MILLISECOND */);
-                    const distance = Math.abs(speed) * tickCycle;
+                    const acceleration = this.getAcceleration(2 /* AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND */);
+                    //const distance = Math.abs(speed) * tickCycle;
+                    const distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
                     //Ignore gravity
                     if (speed == 0) {
                         entity.teleport(location);
@@ -258,7 +301,7 @@ export class RailMoPlusEntity {
                         onMoved: this.onMoved
                     });
                     entity.teleport(traceResult.location);
-                    this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
+                    this.setEnterDirection(traceResult.enter);
                     this.addMileage(distance);
                     this.norm = traceResult.norm || undefined;
                 } while (false);

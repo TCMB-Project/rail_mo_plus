@@ -3,7 +3,7 @@ import { railDirection } from "./railDirection"
 import { toBlockLocation, directionReverse } from "./functions";
 import { traceRail } from "./traceRail";
 import { VirtualEntity } from "./util";
-import { SpeedUnit } from "./define";
+import { AccelerationUnit, SpeedUnit } from "./define";
 export { SpeedUnit }
 export { updateSpeedDP } from "./functions";
 
@@ -25,6 +25,7 @@ export class RailMoPlusEntity{
     //this.rotate = rotate;
     if(!entity.getDynamicPropertyIds().includes('rail_mo_plus:speed')){
       entity.setDynamicProperty('rail_mo_plus:speed', 0);
+      entity.setDynamicProperty('rail_mo_plus:acceleration', 0);
       this.setMileage(0);
       this.entity.setDynamicProperty('rail_mo_plus:reverse', false);
     }
@@ -162,7 +163,7 @@ export class RailMoPlusEntity{
     this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
     
     let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
-    if(reverse != speed < 0) this.setEnterDirection(PRIVARE_SYMBOL, directionReverse[this.getEnterDirection()]);
+    if(reverse != speed < 0) this.setEnterDirection(directionReverse[this.getEnterDirection()]);
     this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
     this.norm = undefined
 
@@ -196,6 +197,46 @@ export class RailMoPlusEntity{
 
     return speed;
   }
+  setAcceleration(acceleration: number, unit: AccelerationUnit = AccelerationUnit.KM_PER_HOUR_PER_SECOND): void{
+    if(!this.isValid()){
+      throw new Error('The entity is invalid.');
+    }
+
+    //m/ms^2に変換
+    switch(unit){
+      case AccelerationUnit.KM_PER_HOUR_PER_SECOND:
+        acceleration *= 5 / 18;
+        break;
+      case AccelerationUnit.M_PER_SECOND_PER_SECOND:
+        acceleration /= 1000000;
+        break;
+      case AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND:
+        break;
+    }
+
+    this.entity.setDynamicProperty('rail_mo_plus:acceleration', acceleration);
+  }
+  getAcceleration(unit: AccelerationUnit = AccelerationUnit.KM_PER_HOUR_PER_SECOND): number{
+    if(!this.isValid()){
+      throw new Error('The entity is invalid.');
+    }
+
+    let acceleration = this.entity.getDynamicProperty('rail_mo_plus:acceleration') as number;
+
+    //m/ms^2からの変換
+    switch(unit){
+      case AccelerationUnit.KM_PER_HOUR_PER_SECOND:
+        acceleration *= 18 / 5;
+        break;
+      case AccelerationUnit.M_PER_SECOND_PER_SECOND:
+        acceleration *= 1000000;
+        break;
+      case AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND:
+        break;
+    }
+
+    return acceleration;
+  }
   getEnterDirection(): Direction{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
@@ -212,12 +253,14 @@ export class RailMoPlusEntity{
     }
     return <Direction>directionDP;
   }
-  private setEnterDirection(symbol: symbol, direction: Direction): void{
+  /**
+   * Internal use only
+   */
+  private setEnterDirection(direction: Direction): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
 
-    if(symbol != PRIVARE_SYMBOL) throw Error('Use from outside the module is not allowed.');
     this.entity.setDynamicProperty('rail_mo_plus:enter_direction', direction);
   }
   getMileage(): number{
@@ -274,8 +317,11 @@ export class RailMoPlusEntity{
           if(!entity.isValid) break;
     
           let location: Vector3 = entity.location;
-          const speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
-          const distance = Math.abs(speed) * tickCycle;
+          let speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
+          const acceleration = this.getAcceleration(AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND);
+          //const distance = Math.abs(speed) * tickCycle;
+          const distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
+          speed += acceleration * tickCycle;
 
           //Ignore gravity
           if(speed == 0){
@@ -295,8 +341,9 @@ export class RailMoPlusEntity{
           });
 
           entity.teleport(traceResult.location);
-          this.setEnterDirection(PRIVARE_SYMBOL, traceResult.enter);
+          this.setEnterDirection(traceResult.enter);
           this.addMileage(distance);
+          this.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
           this.norm = traceResult.norm || undefined;
         }while(false);
       }catch(e){

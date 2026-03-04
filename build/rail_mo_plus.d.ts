@@ -1,6 +1,8 @@
 import { Entity, Direction, DimensionLocation } from "@minecraft/server";
 import { VirtualEntity } from "./util";
-import { SpeedUnit } from "./define";
+import { AccelerationUnit, SpeedUnit } from "./define";
+export { SpeedUnit };
+export { updateSpeedDP } from "./functions";
 export declare class RailMoPlusEntity {
     private static instances;
     /**
@@ -77,7 +79,12 @@ export declare class RailMoPlusEntity {
      * @returns The speed in the specified unit.
      */
     getSpeed(unit?: SpeedUnit): number;
+    setAcceleration(acceleration: number, unit?: AccelerationUnit): void;
+    getAcceleration(unit?: AccelerationUnit): number;
     getEnterDirection(): Direction;
+    /**
+     * Internal use only
+     */
     private setEnterDirection;
     getMileage(): number;
     setMileage(mileage: number): void;

@@ -1,4 +1,5 @@
 import { Vector3, Block, Vector2, Direction } from "@minecraft/server";
+import { RailMoPlusEntity } from "./rail_mo_plus";
 export declare const direction: Record<number, Direction>;
 export declare const edge: Record<Direction, Vector3>;
 export declare const directionReverse: Record<Direction, Direction>;
@@ -31,3 +32,4 @@ export declare function VectorAdd(vector1: Vector3, vector2: Vector3): Vector3;
 export declare function toVector3(vector: Vector2): Vector3;
 export declare function toVector2(vector: Vector3): Vector2;
 export declare function nextBlock(block: Block, direction: Direction, ascending: Direction): Block;
+export declare function updateSpeedDP(railMoPlusEntity: RailMoPlusEntity): void;
