@@ -1,5 +1,6 @@
 import { Entity, Direction, DimensionLocation } from "@minecraft/server";
 import { VirtualEntity } from "./util";
+import { SpeedUnit } from "./define";
 export declare class RailMoPlusEntity {
     private static instances;
     /**
@@ -21,6 +22,7 @@ export declare class RailMoPlusEntity {
      */
     private norm;
     /**
+     * @deprecated
      * Connects an array of RailMoPlusEntity instances to this entity.
      *
      * This method appends the given entities to the `connected` array of the current instance.
@@ -31,6 +33,7 @@ export declare class RailMoPlusEntity {
      */
     connect(entities: RailMoPlusEntity[]): void;
     /**
+     * @deprecated
      * Uncouples the connected entities starting from the specified offset.
      *
      * This method removes entities from the `connected` array beginning at the given offset,
@@ -63,11 +66,17 @@ export declare class RailMoPlusEntity {
      */
     onMoved: (location: DimensionLocation, enter: Direction, residueDistance: number) => void;
     /**
-     * Set the speed.
+     * Set the speed of the entity.
      * @param speed Speed (km/h) to be set
+     * @param unit The unit of the speed value (default is KM_PER_HOUR)
      */
-    setSpeed(speed: number): void;
-    getSpeed(): number;
+    setSpeed(speed: number, unit?: SpeedUnit): void;
+    /**
+     * Get the current speed of the entity.
+     * @param SpeedUnit The unit of the returned speed value (default is KM_PER_HOUR)
+     * @returns The speed in the specified unit.
+     */
+    getSpeed(unit?: SpeedUnit): number;
     getEnterDirection(): Direction;
     private setEnterDirection;
     getMileage(): number;

@@ -50,6 +50,7 @@ export class RailMoPlusEntity {
         system.run(() => this.gameloop());
     }
     /**
+     * @deprecated
      * Connects an array of RailMoPlusEntity instances to this entity.
      *
      * This method appends the given entities to the `connected` array of the current instance.
@@ -83,6 +84,7 @@ export class RailMoPlusEntity {
         this.connected.push.apply(formationTemp);
     }
     /**
+     * @deprecated
      * Uncouples the connected entities starting from the specified offset.
      *
      * This method removes entities from the `connected` array beginning at the given offset,
@@ -112,12 +114,24 @@ export class RailMoPlusEntity {
         return formation;
     }
     /**
-     * Set the speed.
+     * Set the speed of the entity.
      * @param speed Speed (km/h) to be set
+     * @param unit The unit of the speed value (default is KM_PER_HOUR)
      */
-    setSpeed(speed) {
+    setSpeed(speed, unit = 0 /* SpeedUnit.KM_PER_HOUR */) {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
+        }
+        //m/msに変換
+        switch (unit) {
+            case 0 /* SpeedUnit.KM_PER_HOUR */:
+                speed /= 3600;
+                break;
+            case 1 /* SpeedUnit.M_PER_SECOND */:
+                speed /= 1000;
+                break;
+            case 2 /* SpeedUnit.M_PER_MILLISECOND */:
+                break;
         }
         this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
         let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
@@ -126,15 +140,31 @@ export class RailMoPlusEntity {
         this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
         this.norm = undefined;
         for (let entity of this.connected) {
-            entity.setSpeed(speed);
+            entity.setSpeed(speed, 2 /* SpeedUnit.M_PER_MILLISECOND */);
         }
     }
-    getSpeed() {
+    /**
+     * Get the current speed of the entity.
+     * @param SpeedUnit The unit of the returned speed value (default is KM_PER_HOUR)
+     * @returns The speed in the specified unit.
+     */
+    getSpeed(unit = 0 /* SpeedUnit.KM_PER_HOUR */) {
         if (!this.isValid()) {
             throw new Error('The entity is invalid.');
         }
-        let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
-        return typeof speedDP == 'number' ? speedDP : 0;
+        let speed = this.entity.getDynamicProperty('rail_mo_plus:speed');
+        //m/msからの変換
+        switch (unit) {
+            case 0 /* SpeedUnit.KM_PER_HOUR */:
+                speed *= 3600;
+                break;
+            case 1 /* SpeedUnit.M_PER_SECOND */:
+                speed *= 1000;
+                break;
+            case 2 /* SpeedUnit.M_PER_MILLISECOND */:
+                break;
+        }
+        return speed;
     }
     getEnterDirection() {
         if (!this.isValid()) {
@@ -210,8 +240,7 @@ export class RailMoPlusEntity {
                     if (!entity.isValid)
                         break;
                     let location = entity.location;
-                    // km/h to m/ms
-                    const speed = this.getSpeed() / 3600;
+                    const speed = this.getSpeed(2 /* SpeedUnit.M_PER_MILLISECOND */);
                     const distance = Math.abs(speed) * tickCycle;
                     //Ignore gravity
                     if (speed == 0) {

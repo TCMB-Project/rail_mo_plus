@@ -1,4 +1,6 @@
 import { Vector3, Block, Vector2, Direction } from "@minecraft/server";
+import { RailMoPlusEntity } from "./rail_mo_plus";
+import { SpeedUnit } from "./define";
 
 export const direction: Record<number, Direction> = {
   "-180": <Direction>"North",
@@ -164,4 +166,9 @@ export function nextBlock(block: Block, direction: Direction, ascending: Directi
   }
 
   return after_block;
+}
+
+export function updateSpeedDP(railMoPlusEntity: RailMoPlusEntity){
+  const kmPerHour = railMoPlusEntity.entity.getDynamicProperty('rail_mo_plus:speed') as number;
+  railMoPlusEntity.setSpeed(kmPerHour, SpeedUnit.KM_PER_HOUR);
 }

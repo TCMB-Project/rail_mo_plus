@@ -3,6 +3,9 @@ import { railDirection } from "./railDirection"
 import { toBlockLocation, directionReverse } from "./functions";
 import { traceRail } from "./traceRail";
 import { VirtualEntity } from "./util";
+import { SpeedUnit } from "./define";
+export { SpeedUnit }
+export { updateSpeedDP } from "./functions";
 
 const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
 
@@ -46,6 +49,7 @@ export class RailMoPlusEntity{
    */
   private norm: number;
   /**
+   * @deprecated
    * Connects an array of RailMoPlusEntity instances to this entity.
    * 
    * This method appends the given entities to the `connected` array of the current instance.
@@ -83,6 +87,7 @@ export class RailMoPlusEntity{
     this.connected.push.apply(formationTemp);
   }
   /**
+   * @deprecated
    * Uncouples the connected entities starting from the specified offset.
    * 
    * This method removes entities from the `connected` array beginning at the given offset,
@@ -97,8 +102,12 @@ export class RailMoPlusEntity{
       throw new Error('The entity is invalid.');
     }
 
-    let uncoupled = this.connected.splice(offset - 1);
-    let uncoupledFront = uncoupled.shift();
+    if (offset <= 0 || offset > this.connected.length) {
+      throw new Error(`Invalid offset: ${offset}. Must be between 1 and ${this.connected.length}.`);
+    }
+
+    const uncoupled = this.connected.splice(offset - 1);
+    const uncoupledFront = uncoupled.shift()!; // We know it's not undefined due to the check above
     uncoupledFront.connect(uncoupled);
 
     return uncoupledFront;
@@ -129,12 +138,25 @@ export class RailMoPlusEntity{
    */
   onMoved: (location: DimensionLocation, enter: Direction, residueDistance: number)=>void = function(_){};
   /**
-   * Set the speed.
+   * Set the speed of the entity.
    * @param speed Speed (km/h) to be set
+   * @param unit The unit of the speed value (default is KM_PER_HOUR)
    */
-  setSpeed(speed: number): void{
+  setSpeed(speed: number, unit: SpeedUnit = SpeedUnit.KM_PER_HOUR): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
+    }
+
+    //m/msに変換
+    switch(unit){
+      case SpeedUnit.KM_PER_HOUR:
+        speed /= 3600;
+        break;
+      case SpeedUnit.M_PER_SECOND:
+        speed /= 1000;
+        break;
+      case SpeedUnit.M_PER_MILLISECOND:
+        break;
     }
 
     this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
@@ -145,16 +167,34 @@ export class RailMoPlusEntity{
     this.norm = undefined
 
     for(let entity of this.connected){
-      entity.setSpeed(speed);
+      entity.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
     }
   }
-  getSpeed(): number{
+  /**
+   * Get the current speed of the entity.
+   * @param SpeedUnit The unit of the returned speed value (default is KM_PER_HOUR) 
+   * @returns The speed in the specified unit.
+   */
+  getSpeed(unit: SpeedUnit = SpeedUnit.KM_PER_HOUR): number{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
 
-    let speedDP = this.entity.getDynamicProperty('rail_mo_plus:speed');
-    return typeof speedDP=='number'?speedDP:0;
+    let speed = this.entity.getDynamicProperty('rail_mo_plus:speed') as number;
+
+    //m/msからの変換
+    switch(unit){
+      case SpeedUnit.KM_PER_HOUR:
+        speed *= 3600;
+        break;
+      case SpeedUnit.M_PER_SECOND:
+        speed *= 1000;
+        break;
+      case SpeedUnit.M_PER_MILLISECOND:
+        break;
+    }
+
+    return speed;
   }
   getEnterDirection(): Direction{
     if(!this.isValid()){
@@ -234,10 +274,7 @@ export class RailMoPlusEntity{
           if(!entity.isValid) break;
     
           let location: Vector3 = entity.location;
-    
-          // km/h to m/ms
-          const speed = this.getSpeed() / 3600;
-    
+          const speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
           const distance = Math.abs(speed) * tickCycle;
 
           //Ignore gravity
