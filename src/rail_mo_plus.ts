@@ -310,6 +310,14 @@ export class RailMoPlusEntity{
     let currentTime = new Date();
     let tickCycle = currentTime.getTime() - lastTime.getTime();
     this.lastTickTime = currentTime;
+
+    let speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
+    const acceleration = this.getAcceleration(AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND);
+    //const distance = Math.abs(speed) * tickCycle;
+    const distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
+    speed += acceleration * tickCycle;
+    this.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
+
     if(this.control){
       try{
         do{
@@ -317,11 +325,6 @@ export class RailMoPlusEntity{
           if(!entity.isValid) break;
     
           let location: Vector3 = entity.location;
-          let speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
-          const acceleration = this.getAcceleration(AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND);
-          //const distance = Math.abs(speed) * tickCycle;
-          const distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
-          speed += acceleration * tickCycle;
 
           //Ignore gravity
           if(speed == 0){
@@ -343,7 +346,6 @@ export class RailMoPlusEntity{
           entity.teleport(traceResult.location);
           this.setEnterDirection(traceResult.enter);
           this.addMileage(distance);
-          this.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
           this.norm = traceResult.norm || undefined;
         }while(false);
       }catch(e){
