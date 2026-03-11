@@ -297,7 +297,7 @@ export class RailMoPlusEntity {
         const acceleration = this.getAcceleration(2 /* AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND */);
         // calculate how far we'll move this tick
         // normally: s = v*t + 0.5*a*t^2
-        let distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
+        let distance = Math.abs(speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle);
         // integrate speed over the tick and clamp at zero if the sign reverses
         const newSpeed = speed + acceleration * tickCycle;
         if (speed !== 0 && newSpeed !== 0 && Math.sign(speed) !== Math.sign(newSpeed)) {
