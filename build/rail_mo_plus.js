@@ -144,7 +144,7 @@ export class RailMoPlusEntity {
         }
         this.entity.setDynamicProperty('rail_mo_plus:speed', converted);
         let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
-        if (reverse != converted < 0)
+        if (reverse != (converted < 0))
             this.setEnterDirection(directionReverse[this.getEnterDirection()]);
         this.entity.setDynamicProperty('rail_mo_plus:reverse', converted < 0);
         this.norm = undefined;
