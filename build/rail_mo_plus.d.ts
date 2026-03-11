@@ -24,7 +24,8 @@ export declare class RailMoPlusEntity {
      */
     private norm;
     /**
-     * @deprecated
+     * @deprecated Please use the `Formation` class.
+     *
      * Connects an array of RailMoPlusEntity instances to this entity.
      *
      * This method appends the given entities to the `connected` array of the current instance.
@@ -35,7 +36,8 @@ export declare class RailMoPlusEntity {
      */
     connect(entities: RailMoPlusEntity[]): void;
     /**
-     * @deprecated
+     * @deprecated Please use the `Formation` class.
+     *
      * Uncouples the connected entities starting from the specified offset.
      *
      * This method removes entities from the `connected` array beginning at the given offset,
@@ -47,6 +49,8 @@ export declare class RailMoPlusEntity {
      */
     uncouple(offset: number): RailMoPlusEntity;
     /**
+     * @deprecated Please use the `Formation` class.
+     *
      * Returns an array containing this entity and all connected entities.
      *
      * @returns {RailMoPlusEntity[]} An array of `RailMoPlusEntity` objects representing the formation.
@@ -79,7 +83,17 @@ export declare class RailMoPlusEntity {
      * @returns The speed in the specified unit.
      */
     getSpeed(unit?: SpeedUnit): number;
+    /**
+     * Set the acceleration of the entity.
+     * @param acceleration
+     * @param unit
+     */
     setAcceleration(acceleration: number, unit?: AccelerationUnit): void;
+    /**
+     * Get the current acceleration of the entity.
+     * @param SpeedUnit The unit of the returned speed value (default is KM_PER_HOUR)
+     * @returns The speed in the specified unit.
+     */
     getAcceleration(unit?: AccelerationUnit): number;
     getEnterDirection(): Direction;
     /**

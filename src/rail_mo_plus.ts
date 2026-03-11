@@ -7,8 +7,6 @@ import { AccelerationUnit, SpeedUnit } from "./define";
 export { SpeedUnit }
 export { updateSpeedDP } from "./functions";
 
-const PRIVARE_SYMBOL = Symbol('rail_mo_plus_private');
-
 export class RailMoPlusEntity{
   private static instances: Map<string, RailMoPlusEntity> = new Map();
   /**
@@ -49,8 +47,9 @@ export class RailMoPlusEntity{
    * ブロック始端を0、終端を1とした時の現在位置
    */
   private norm: number;
-  /**
-   * @deprecated
+  /** 
+   * @deprecated Please use the `Formation` class.
+   * 
    * Connects an array of RailMoPlusEntity instances to this entity.
    * 
    * This method appends the given entities to the `connected` array of the current instance.
@@ -88,7 +87,8 @@ export class RailMoPlusEntity{
     this.connected.push.apply(formationTemp);
   }
   /**
-   * @deprecated
+   * @deprecated Please use the `Formation` class.
+   * 
    * Uncouples the connected entities starting from the specified offset.
    * 
    * This method removes entities from the `connected` array beginning at the given offset,
@@ -114,6 +114,8 @@ export class RailMoPlusEntity{
     return uncoupledFront;
   }
   /**
+   * @deprecated Please use the `Formation` class.
+   * 
    * Returns an array containing this entity and all connected entities.
    *
    * @returns {RailMoPlusEntity[]} An array of `RailMoPlusEntity` objects representing the formation.
@@ -148,27 +150,28 @@ export class RailMoPlusEntity{
       throw new Error('The entity is invalid.');
     }
 
+    let converted = speed;
     //m/msに変換
     switch(unit){
       case SpeedUnit.KM_PER_HOUR:
-        speed /= 3600;
+        converted /= 3600;
         break;
       case SpeedUnit.M_PER_SECOND:
-        speed /= 1000;
+        converted /= 1000;
         break;
       case SpeedUnit.M_PER_MILLISECOND:
         break;
     }
 
-    this.entity.setDynamicProperty('rail_mo_plus:speed', speed);
+    this.entity.setDynamicProperty('rail_mo_plus:speed', converted);
     
     let reverse = this.entity.getDynamicProperty('rail_mo_plus:reverse');
-    if(reverse != speed < 0) this.setEnterDirection(directionReverse[this.getEnterDirection()]);
-    this.entity.setDynamicProperty('rail_mo_plus:reverse', speed < 0);
+    if(reverse != converted < 0) this.setEnterDirection(directionReverse[this.getEnterDirection()]);
+    this.entity.setDynamicProperty('rail_mo_plus:reverse', converted < 0);
     this.norm = undefined
 
     for(let entity of this.connected){
-      entity.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
+      entity.setSpeed(converted, SpeedUnit.M_PER_MILLISECOND);
     }
   }
   /**
@@ -197,25 +200,40 @@ export class RailMoPlusEntity{
 
     return speed;
   }
+  /**
+   * Set the acceleration of the entity.
+   * @param acceleration 
+   * @param unit 
+   */
   setAcceleration(acceleration: number, unit: AccelerationUnit = AccelerationUnit.KM_PER_HOUR_PER_SECOND): void{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
     }
 
+    let converted = acceleration;
     //m/ms^2に変換
     switch(unit){
       case AccelerationUnit.KM_PER_HOUR_PER_SECOND:
-        acceleration *= 5 / 18;
+        converted *= 5 / 18;
         break;
       case AccelerationUnit.M_PER_SECOND_PER_SECOND:
-        acceleration /= 1000000;
+        converted /= 1000000;
         break;
       case AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND:
         break;
     }
 
-    this.entity.setDynamicProperty('rail_mo_plus:acceleration', acceleration);
+    this.entity.setDynamicProperty('rail_mo_plus:acceleration', converted);
+    this.norm = undefined;
+    for(let entity of this.connected){
+      entity.setAcceleration(converted, AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND);
+    }
   }
+  /**
+   * Get the current acceleration of the entity.
+   * @param SpeedUnit The unit of the returned speed value (default is KM_PER_HOUR) 
+   * @returns The speed in the specified unit.
+   */
   getAcceleration(unit: AccelerationUnit = AccelerationUnit.KM_PER_HOUR_PER_SECOND): number{
     if(!this.isValid()){
       throw new Error('The entity is invalid.');
@@ -313,9 +331,24 @@ export class RailMoPlusEntity{
 
     let speed = this.getSpeed(SpeedUnit.M_PER_MILLISECOND);
     const acceleration = this.getAcceleration(AccelerationUnit.M_PER_MILLISECOND_PER_MILLISECOND);
-    //const distance = Math.abs(speed) * tickCycle;
-    const distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
-    speed += acceleration * tickCycle;
+
+    // calculate how far we'll move this tick
+    // normally: s = v*t + 0.5*a*t^2
+    let distance = speed * tickCycle + 0.5 * acceleration * tickCycle * tickCycle;
+
+    // integrate speed over the tick and clamp at zero if the sign reverses
+    const newSpeed = speed + acceleration * tickCycle;
+    if (speed !== 0 && newSpeed !== 0 && Math.sign(speed) !== Math.sign(newSpeed)) {
+      // we've crossed through zero during this interval; stop at 0
+      // adjust distance so we only travel until we stop (assuming constant acceleration)
+      // Δv = -speed, so t_stop = -speed / acceleration
+      const tStop = -speed / acceleration;
+      distance = speed * tStop + 0.5 * acceleration * tStop * tStop;
+      speed = 0;
+    } else {
+      speed = newSpeed;
+    }
+
     this.setSpeed(speed, SpeedUnit.M_PER_MILLISECOND);
 
     if(this.control){
